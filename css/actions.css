@@ -1,0 +1,6 @@
+input {
+    display: block;
+}
+.inlinecheckBoxLabel {
+     float: left !important;
+ }

@@ -1,0 +1,15 @@
+body {
+    padding-top: 50px;
+}
+.starter-template {
+    padding: 40px 15px;
+}
+
+table {
+    width: 100%;
+}
+
+th {
+    padding: 10px;
+    text-align: center;
+}
