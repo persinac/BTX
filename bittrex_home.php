@@ -1,6 +1,6 @@
 <?php
 
-require_once ("settings/settings.php");
+require_once("config/settings.php");
 
 /**
  * Created by PhpStorm.
