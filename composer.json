@@ -2,8 +2,10 @@
   "autoload": {
     "psr-4": {
       "SETTINGS\\": "src/",
-      "PASSWORDS": "src/passwords",
-      "PGSQLConnector": "src/connections"
+      "PASSWORDS\\": "src/passwords",
+      "PGSQLConnector\\": "src/connections",
+      "CRUD\\": "src/CRUD",
+      "Read\\": "src/CRUD/read"
     }
   }
 }

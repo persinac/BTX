@@ -9,7 +9,7 @@
 namespace PGSQLConnector;
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
-require_once $root . '/vendor/autoload.php';
+//require_once $root . '/vendor/autoload.php';
 
 class PGSQLConnector
 {

@@ -21,9 +21,9 @@ require_once $root . '\markup-project-persinac\src\classes\ScoreHeader.php';
 require_once $root . '\markup-project-persinac\src\classes\ScoreDetails.php';
 */
 use CRUD\BTXMaster;
-use DBObjects\ScoreHeader;
+//use DBObjects\ScoreHeader;
 use TableNames;
-use ViewNames;
+//use ViewNames;
 
 class BTXFinder extends BTXMaster
 {
@@ -36,6 +36,20 @@ class BTXFinder extends BTXMaster
         return new BTXFinder();
     }
 
+    public function GetCoinsToWatch() {
+        $retVal = -1;
+        $query = "select btxledgerid from " . BTX_TBL_COINS_TO_WATCH;
+        $moreResults = $this->btxMasterSQL->mys->more_results();
+        if($moreResults) {
+            $this->btxMasterSQL->mys->next_result();
+        }
+        if ($result = $this->btxMasterSQL->mys->query($query)) {
+            $retVal = $result->num_rows;
+            $result->free();
+        }
+        return  $retVal;
+    }
+    /*
     public function GetTagReferenceData() {
         $retVal = -1;
         $listOfTags = array();
@@ -164,4 +178,5 @@ class BTXFinder extends BTXMaster
         }
         return  $listOfDetails;
     }
+    */
 }

@@ -1,6 +1,6 @@
 <?php
 
-require_once("config/settings.php");
+require_once("src/settings.php");
 
 /**
  * Created by PhpStorm.
@@ -25,10 +25,10 @@ require_once("config/settings.php");
     <title>Bittrex</title>
 
     <!-- Custom styles for this template -->
-    <link href="/dist/css/general.css" rel="stylesheet">
-    <link href="/dist/css/main.css" rel="stylesheet">
-    <link href="/dist/css/tables.css" rel="stylesheet">
-    <link href="/dist/css/actions.css" rel="stylesheet">
+    <link href="/css/general.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/tables.css" rel="stylesheet">
+    <link href="/css/actions.css" rel="stylesheet">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/<?php echo BOOTSTRAP_VERSION; ?>/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -83,7 +83,7 @@ require_once("config/settings.php");
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/<?php echo BOOTSTRAP_VERSION; ?>/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="/dist/js/btx_main.js"></script>
+<script src="js/btx_main.js"></script>
 <script>
     // Wait for the page to load first
 //    window.onload = function() {

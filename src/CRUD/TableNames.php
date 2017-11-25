@@ -6,6 +6,10 @@
  * Time: 11:45 PM
  */
 namespace TableNames;
-define('RV_TBL_HTML_HEADER', 'rv_html_score_header');
-define('RV_TBL_HTML_DETAILS', 'rv_html_score_details');
-define('RV_TBL_HTML_TAGS', 'rv_html_score_tags');
+define('BTX_TBL_TESTING_LEDGER', 'btxledger');
+define('BTX_TBL_COINS_TO_WATCH', 'btxcoinswatch');
+define('BTX_TBL_MARKET_HISTORY', 'btxmarkethistory');
+define('BTX_TBL_COIN_MARKET_HISTORY_DETAILS', 'btxcoinmarkethistorydetails');
+define('BTX_TBL_RUNNING_TOTALS', 'btxrunningtotals');
+define('BTX_TBL_RUNNING_TOTALS', 'btxrunningtotals');
+define('BTX_TBL_TRANSACTIONS', 'btxtransactions');

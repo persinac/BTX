@@ -6,4 +6,4 @@
  * Time: 4:54 PM
  */
 namespace PASSWORDS;
-define('BTX_DB_PASSWORD', '<pw_here>');
+define('BTX_DB_PASSWORD', '...');

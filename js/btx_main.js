@@ -3,9 +3,9 @@ function BuildHomePage() {
     $("#dyn_content").html(response);
     $.ajax({
         type: "GET",
-        url: "/CRUD/general/bittrexAccountInfo.php",
+        url: "/src/test_homepg.php",
         success: function(response) {
-            //console.log(response);
+            console.log(response);
             $("#dyn_content").html(response);
         }
     });

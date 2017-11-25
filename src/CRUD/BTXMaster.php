@@ -13,16 +13,18 @@ namespace CRUD;
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
 require_once $root . '/vendor/autoload.php';
 
+use PGSQLConnector;
+
 class BTXMaster
 {
     var $htmlTagCounter;
     var $btxMasterSQL;
     function __construct()
     {
-        $this->btxMasterSQL = new \PGSQLConnector ();
+        $this->btxMasterSQL = new PGSQLConnector\PGSQLConnector();
     }
 
     public function GetMySQLObj() {
-        return $this->btxMasterSQL->mys;
+        return $this->btxMasterSQL->btxMasterSQL;
     }
 }

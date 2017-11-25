@@ -5,11 +5,26 @@
  * Date: 8/18/2017
  * Time: 8:24 AM
  */
+
+$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+require_once $root . '/vendor/autoload.php';
+
 $retval = "";
 //$mystring = system('python3 ../../python_bittrex_master/myTestScript.py', $retval);
 //$mystring = system('../../py_bittrex/new_script_3.sh', $retval);
+
+
+$btxFinder = new \Read\BTXFinder();
+
+$retval = $btxFinder->GetCoinsToWatch();
+
+
 $dbconn = pg_connect("host=localhost dbname=bittrex user=bittrex_user password=password123")
 or die('Could not connect: ' . pg_last_error());
+
+
+
+
 
 // Performing SQL query
 $query = 'SELECT * FROM btxmarkethistory

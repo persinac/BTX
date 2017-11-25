@@ -6,4 +6,4 @@ CREATE SEQUENCE public.btxtransactions_sq
     CACHE 1;
 
 ALTER SEQUENCE public.btxtransactions_sq
-    OWNER TO bittrex_user;
+    OWNER TO btx_user;

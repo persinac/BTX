@@ -1,8 +1,8 @@
--- Table: public."BTX_LEDGER"
+-- Table: public."btxledger"
 
--- DROP TABLE public."BTX_LEDGER";
+-- DROP TABLE public."btxledger";
 
-CREATE TABLE public."BTX_LEDGER"
+CREATE TABLE public."btxledger"
 (
     "BTC_DOLLAR_VALUE" double precision,
     "BTC_VALUE" double precision,
