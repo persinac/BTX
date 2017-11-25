@@ -6,46 +6,31 @@
  * Time: 11:36 PM
  */
 
-namespace Read;
+namespace src\CRUD\read;
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
 require_once $root . '/vendor/autoload.php';
-/*
-require_once $root . '\markup-project-persinac\src\settings\settings.php';
 
-require_once $root . '\markup-project-persinac\src\CRUD\ScoreMaster.php';
-require_once $root . '\markup-project-persinac\src\CRUD\TableNames.php';
-require_once $root . '\markup-project-persinac\src\CRUD\ViewNames.php';
-
-require_once $root . '\markup-project-persinac\src\classes\ScoreHeader.php';
-require_once $root . '\markup-project-persinac\src\classes\ScoreDetails.php';
-*/
-use CRUD\BTXMaster;
+use src\CRUD\BTXMaster;
 //use DBObjects\ScoreHeader;
-use TableNames;
-//use ViewNames;
 
 class BTXFinder extends BTXMaster
 {
-    function __construct()
+    function __construct($connection)
     {
-        parent::__construct();
+        parent::__construct($connection);
     }
 
-    public static function CreateNewScoreFinder() {
-        return new BTXFinder();
+    public static function CreateNewScoreFinder($connection) {
+        return new BTXFinder($connection);
     }
 
     public function GetCoinsToWatch() {
         $retVal = -1;
-        $query = "select btxledgerid from " . BTX_TBL_COINS_TO_WATCH;
-        $moreResults = $this->btxMasterSQL->mys->more_results();
-        if($moreResults) {
-            $this->btxMasterSQL->mys->next_result();
-        }
-        if ($result = $this->btxMasterSQL->mys->query($query)) {
-            $retVal = $result->num_rows;
-            $result->free();
+        $query = sprintf("select * from %s",BTX_TBL_TESTING_LEDGER);
+        if ($result = pg_query($query)) {
+            $retVal = pg_num_rows($result);
+            pg_free_result($result);
         }
         return  $retVal;
     }

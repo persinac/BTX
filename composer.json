@@ -1,11 +1,12 @@
 {
   "autoload": {
+    "files": [
+      "src/settings.php"
+      , "src/passwords/btx_passwords.php"
+      , "src/CRUD/TableNames.php"
+    ],
     "psr-4": {
-      "SETTINGS\\": "src/",
-      "PASSWORDS\\": "src/passwords",
-      "PGSQLConnector\\": "src/connections",
-      "CRUD\\": "src/CRUD",
-      "Read\\": "src/CRUD/read"
+      "src\\": "src"
     }
   }
 }

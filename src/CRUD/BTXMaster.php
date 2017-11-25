@@ -6,22 +6,20 @@
  * Time: 9:02 PM
  */
 
-namespace CRUD;
-
-//use \HTMLTagCounter as HTMLTagCounter
+namespace src\CRUD;
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
 require_once $root . '/vendor/autoload.php';
 
-use PGSQLConnector;
+//use BTX\Connections\PGSQLConnector;
 
 class BTXMaster
 {
     var $htmlTagCounter;
     var $btxMasterSQL;
-    function __construct()
+    function __construct($pgconn)
     {
-        $this->btxMasterSQL = new PGSQLConnector\PGSQLConnector();
+        $this->btxMasterSQL = $pgconn;
     }
 
     public function GetMySQLObj() {

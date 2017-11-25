@@ -22,10 +22,6 @@ $retval = $btxFinder->GetCoinsToWatch();
 $dbconn = pg_connect("host=localhost dbname=bittrex user=bittrex_user password=password123")
 or die('Could not connect: ' . pg_last_error());
 
-
-
-
-
 // Performing SQL query
 $query = 'SELECT * FROM btxmarkethistory
     ORDER BY timestamp DESC

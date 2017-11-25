@@ -7,9 +7,6 @@
  *
  * Most of these config are not used
  */
-
-namespace SETTINGS;
-
 define('BOOTSTRAP_VERSION', '3.3.7');
 
 define('BTX_DB_USERNAME', 'btx_user');

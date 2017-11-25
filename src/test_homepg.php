@@ -9,13 +9,12 @@
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
 require_once $root . '/vendor/autoload.php';
 
-$retval = "";
-//$mystring = system('python3 ../../python_bittrex_master/myTestScript.py', $retval);
-//$mystring = system('../../py_bittrex/new_script_3.sh', $retval);
+$retval = sprintf('host=%s dbname=%s user=%s password=%s',
+    BTX_DB_HOST, BTX_DB_NAME, BTX_DB_USERNAME, BTX_DB_PASSWORD);
 
-
-$btxFinder = new \Read\BTXFinder();
+$connection = new src\connections\PGSQLConnector();
+$btxFinder = new src\CRUD\read\BTXFinder($connection);
 
 $retval = $btxFinder->GetCoinsToWatch();
-
+//$retval = BTX_DB_HOST . ' ' . BTX_DB_NAME;
 var_dump($retval);
