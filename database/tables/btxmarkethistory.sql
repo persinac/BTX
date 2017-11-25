@@ -26,4 +26,4 @@ WITH (
 TABLESPACE pg_default;
 
 ALTER TABLE public.btxmarkethistory
-    OWNER to bittrex_user;
+    OWNER to btx_user;
