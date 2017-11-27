@@ -6,21 +6,43 @@
  * Time: 11:38 PM
  */
 
-namespace Create;
+namespace src\CRUD\create;
 
+$root = realpath($_SERVER["DOCUMENT_ROOT"]);
+require_once $root . '/vendor/autoload.php';
 
-use CRUD\BTXMaster;
-use TableNames;
+use src\CRUD\BTXMaster;
 
 class BTXKeeper extends BTXMaster
 {
-    function __construct()
+    function __construct($connection)
     {
-        parent::__construct();
+        parent::__construct($connection);
     }
 
-    public static function CreateNewScoreKeeper() {
-        return new BTXKeeper();
+    public static function CreateNewBTXKeeper($connection) {
+        return new BTXKeeper($connection);
+    }
+
+    /***
+     * This function takes in the sql statement to execute as well as the num of rows
+     * and the table name.
+     *
+     * @param $insertStatement
+     * @param int $numOfRows
+     * @param string $tableName
+     * @return int|string
+     */
+    public function ExecuteInsertStatement($insertStatement, $numOfRows = 0, $tableName = "") {
+        $retVal = -1;
+        $query = $insertStatement;
+        if ($result = pg_query($query)) {
+            $retVal = "Successfully inserted $numOfRows row(s) into $tableName!";
+            pg_free_result($result);
+        } else {
+            $retVal = "Error: " . pg_last_error();
+        }
+        return  $retVal;
     }
 
     public function InsertNewScore($obj) {
