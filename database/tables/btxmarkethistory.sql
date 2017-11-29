@@ -16,8 +16,8 @@ CREATE TABLE public.btxmarkethistory
     "currentBid" double precision,
     "openBuyOrders" integer,
     "openSellOrders" integer,
-    "btxTimestamp" timestamp with time zone,
-    "timestamp" timestamp with time zone,
+    btxtimestamp integer,
+    "timestamp" integer,
     CONSTRAINT btx_id_pk PRIMARY KEY (id)
 )
 WITH (

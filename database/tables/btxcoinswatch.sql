@@ -8,8 +8,8 @@ CREATE TABLE public.btxcoinswatch
     coin character varying(20) COLLATE pg_catalog."default",
     market character varying(20) COLLATE pg_catalog."default",
     isactive integer,
-    startedwatch timestamp with time zone,
-    endedwatch timestamp with time zone,
+    startedwatch integer,
+    endedwatch integer,
     ishodling integer,
     CONSTRAINT btxcoinswatch_pkey PRIMARY KEY (id)
 )

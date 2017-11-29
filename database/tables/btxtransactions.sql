@@ -14,8 +14,8 @@ CREATE TABLE public.btxtransactions
     priceperunit double precision,
     orderuuid character varying(255) COLLATE pg_catalog."default",
     simulationid integer,
-    btxtimestamp timestamp with time zone,
-    "timestamp" timestamp with time zone,
+    btxtimestamp integer,
+    "timestamp" integer,
     CONSTRAINT btxtransactions_pkey PRIMARY KEY (id)
 )
 WITH (

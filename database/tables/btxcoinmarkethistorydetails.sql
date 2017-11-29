@@ -13,7 +13,7 @@ CREATE TABLE public.btxcoinmarkethistorydetails
     total double precision,
     filltype character varying(50) COLLATE pg_catalog."default",
     ordertype character varying(50) COLLATE pg_catalog."default",
-    btxtimestamp timestamp with time zone,
+    btxtimestamp integer,
     CONSTRAINT btxcoinmarkethistorydetails_pkey PRIMARY KEY (id)
 )
 WITH (
