@@ -18,9 +18,7 @@ WITH (
 )
 TABLESPACE pg_default;
 
-ALTER TABLE public."BTX_LEDGER"
-    OWNER to postgres;
+ALTER TABLE public."btxledger"
+    OWNER to btx_user;
 
-GRANT ALL ON TABLE public."BTX_LEDGER" TO postgres;
-
-GRANT ALL ON TABLE public."BTX_LEDGER" TO bittrex_user;
+GRANT ALL ON TABLE public."btxledger" TO btx_user;
