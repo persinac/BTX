@@ -55,7 +55,7 @@ $encodedJSON = json_decode($result);
 
 // begin the insert statement - this will eventually be in its own class
 $beginInsert = "INSERT INTO ".BTX_TBL_MARKET_HISTORY."
- (coin,market,volume,\"value\",\"usdValue\",high,low,\"lastSell\",\"currentBid\",\"openBuyOrders\",\"openSellOrders\",\"btxTimestamp\",\"timestamp\") VALUES ";
+ (coin,market,volume,\"value\",\"usdValue\",high,low,\"lastSell\",\"currentBid\",\"openBuyOrders\",\"openSellOrders\",btxtimestamp,\"timestamp\") VALUES ";
 $valuesInsert = "";
 $btcUSDValue = 0.00;
 
@@ -96,8 +96,9 @@ if($encodedJSON->success) {
                 }
                 $coin = substr($row->MarketName, strlen($searchFor));
                 $market = substr($row->MarketName, 0,strlen($searchFor)-1);
-                $date = date("Y-m-d H:i:s");
+                $date = date('U');
                 $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s+', $row->TimeStamp);
+                $convertBTXToEpoch = $datetime->format('U');
                 $valuesInsert .= "(";
                 $valuesInsert .= "'$coin'";
                 $valuesInsert .= ",'$market'";
@@ -110,8 +111,8 @@ if($encodedJSON->success) {
                 $valuesInsert .= ",".number_format($row->Bid, "9", ".", "")."";
                 $valuesInsert .= ",".$row->OpenBuyOrders."";
                 $valuesInsert .= ",".$row->OpenSellOrders."";
-                $valuesInsert .= ",'".$datetime->format('Y-m-d H:i:s')."'";
-                $valuesInsert .= ",'".$date."'";
+                $valuesInsert .= ",".$convertBTXToEpoch."";
+                $valuesInsert .= ",".$date."";
                 $valuesInsert .= "),";
             }
         }
