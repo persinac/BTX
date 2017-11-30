@@ -50,13 +50,13 @@ if( ! $btcUSDTResult = curl_exec($btcUSDTCH))
 }
 curl_close($btcUSDTCH);
 
+/* encoded values for USDT-BTC data */
 $btcUSDTjson = json_decode($btcUSDTResult);
+
+/* encoded values for all market data */
 $encodedJSON = json_decode($result);
 
-// begin the insert statement - this will eventually be in its own class
-$beginInsert = "INSERT INTO ".BTX_TBL_MARKET_HISTORY."
- (coin,market,volume,\"value\",\"usdValue\",high,low,\"lastSell\",\"currentBid\",\"openBuyOrders\",\"openSellOrders\",btxtimestamp,\"timestamp\") VALUES ";
-$valuesInsert = "";
+/* set default btcUSDT value */
 $btcUSDValue = 0.00;
 
 $numOfInserts = count($encodedJSON->result);
@@ -66,6 +66,7 @@ if($btcUSDTjson->success) {
 }
 if($encodedJSON->success) {
     $searchParty = array('BTC-', 'USDT-');
+    $listOfMarketHistory = array();
     foreach ($searchParty as $searchFor) {
         /*
          * "MarketName":"BTC-1ST",
@@ -96,34 +97,36 @@ if($encodedJSON->success) {
                 }
                 $coin = substr($row->MarketName, strlen($searchFor));
                 $market = substr($row->MarketName, 0,strlen($searchFor)-1);
+                /* Convert date format to Epoch */
                 $date = date('U');
                 $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s+', $row->TimeStamp);
                 $convertBTXToEpoch = $datetime->format('U');
-                $valuesInsert .= "(";
-                $valuesInsert .= "'$coin'";
-                $valuesInsert .= ",'$market'";
-                $valuesInsert .= ",".$row->BaseVolume."";
-                $valuesInsert .= "," .number_format($row->Last, "9", ".", "") . "";
-                $valuesInsert .= ",". number_format($usdtConversion, "2", ".", "") ."";
-                $valuesInsert .= ",".number_format($row->High, "9", ".", "")."";
-                $valuesInsert .= ",".number_format($row->Low, "9", ".", "")."";
-                $valuesInsert .= ",".number_format($row->Last, "9", ".", "")."";
-                $valuesInsert .= ",".number_format($row->Bid, "9", ".", "")."";
-                $valuesInsert .= ",".$row->OpenBuyOrders."";
-                $valuesInsert .= ",".$row->OpenSellOrders."";
-                $valuesInsert .= ",".$convertBTXToEpoch."";
-                $valuesInsert .= ",".$date."";
-                $valuesInsert .= "),";
+
+                /* Create the object */
+                $btxMarketHistory = new src\BTXMarketHistory(
+                    $coin, $market, $row->BaseVolume, number_format($row->Last, "9", ".", "")
+                    , number_format($usdtConversion, "2", ".", "")
+                    , number_format($row->High, "9", ".", "")
+                    , number_format($row->Low, "9", ".", "")
+                    , number_format($row->Last, "9", ".", "")
+                    , number_format($row->Bid, "9", ".", "")
+                    , $row->OpenBuyOrders, $row->OpenSellOrders, $convertBTXToEpoch, $date
+                );
+                /* store the object in a list */
+                $listOfMarketHistory[] = $btxMarketHistory;
             }
         }
     }
+    /* Create connection to PGSQL DB */
+    $connection = new src\connections\PGSQLConnector();
+    /* Create a "Keeper" Object that keeps our data, must pass connection info */
+    $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
+
+    /* Generate Insert statement - each object will have this method */
+    $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfMarketHistory, BTX_TBL_MARKET_HISTORY);
+    /* Run the insert statement */
+    $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY[0]);
+    echo $retVal;
 } else {
-    echo "world";
+    echo 'CURL Call to bittrex API failed';
 }
-$insertStmnt = $beginInsert . substr($valuesInsert, 0, strlen($valuesInsert)-1);
-
-$connection = new src\connections\PGSQLConnector();
-$btxKeeper = new src\CRUD\create\BTXKeeper($connection);
-
-$retval = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY);
-var_dump($retval);

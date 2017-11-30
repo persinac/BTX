@@ -24,6 +24,18 @@ class BTXKeeper extends BTXMaster
         return new BTXKeeper($connection);
     }
 
+    public function CreateMultiInsertStatement($listOfObjects, $tableArray) {
+        $beginInsert = "INSERT INTO ". $tableArray[0] . " " . $tableArray[1] . " VALUES ";
+
+        $valuesImplode = array();
+        foreach ($listOfObjects as $value) {
+            $valuesImplode[] = "(" . $value->createCommaDelimitedValueForInsert() . ") ";
+        }
+        $valuesStatements = implode(",",$valuesImplode);
+        $insertStatement = $beginInsert . $valuesStatements;
+        return $insertStatement;
+    }
+
     /***
      * This function takes in the sql statement to execute as well as the num of rows
      * and the table name.
