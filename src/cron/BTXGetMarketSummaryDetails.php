@@ -103,36 +103,43 @@ if($encodedJSON->success) {
 
     }
 
-    /* execute USDT market data script */
     $usdtRetVal = "";
     $btcListOneRetVal = "";
     $btcListTwoRetVal = "";
     $btcListThreeRetVal = "";
     $implodedUSDTMarketCoins = implode(",", $listOfUSDTMarketCoins);
+
+    /* execute USDT market data script and let the cpu work on the BTC list */
     exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedUSDTMarketCoins", $usdtRetVal);
-    $triSplit = 3;
+    $splitBTCList = 3;
     $btcListOne = array();
     $btcListTwo = array();
     $btcListThree = array();
     for($i = 0; $i < count($listOfBTCMarketCoins); $i++) {
-        if($i % $triSplit == 0) {
+        if($i % $splitBTCList == 0) {
             $btcListOne[] = $listOfBTCMarketCoins[$i];
-        } else if($i % $triSplit == 1) {
+        } else if($i % $splitBTCList == 1) {
             $btcListTwo[] = $listOfBTCMarketCoins[$i];
         } else {
             $btcListThree[] = $listOfBTCMarketCoins[$i];
         }
     }
+    /* turn the btc split lists in strings */
     $implodedbtcListOne = implode(",", $btcListOne);
     $implodedbtcListTwo = implode(",", $btcListTwo);
     $implodedbtcListThree = implode(",", $btcListThree);
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedbtcListOne", $btcListOneRetVal);
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedbtcListTwo", $btcListTwoRetVal);
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedbtcListThree", $btcListThreeRetVal);
-//    echo $usdtRetVal[0];
-//    echo $btcListOneRetVal[0];
-//    echo $btcListTwoRetVal[0];
-//    echo $btcListThreeRetVal[0];
+
+    /* Run the split lists asynchronously
+     * exec is read as follows:
+     * /usr/bin/php - Path to PHP to run the script
+     * /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php - relative path to the script
+     * BTC- > Search parameter
+     * $btcUSDValue > the current dollar value of BTC so that we don't have to query for it again
+     * $implodedbtcList___ > the list to parse and gather data from
+     */
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListOne", $btcListOneRetVal);
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListTwo", $btcListTwoRetVal);
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListThree", $btcListThreeRetVal);
     $valuesInsert = $usdtRetVal[0];
     $valuesInsert .= $btcListOneRetVal[0];
     $valuesInsert .= $btcListTwoRetVal[0];
@@ -146,15 +153,5 @@ if($encodedJSON->success) {
     $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
     /* Run the insert statement */
     $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0]);
-    echo $retVal;
-} else {
-    echo "world";
+    echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
 }
-
-//$insertStmnt = $beginInsert . substr($valuesInsert, 0, strlen($valuesInsert)-1);
-//
-//$connection = new src\connections\PGSQLConnector();
-//$btxKeeper = new src\CRUD\create\BTXKeeper($connection);
-//
-//$retval = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY);
-//var_dump($retval);

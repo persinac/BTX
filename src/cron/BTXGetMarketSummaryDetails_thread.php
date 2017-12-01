@@ -4,14 +4,17 @@
  * User: apfba
  * Date: 11/30/2017
  * Time: 4:33 PM
+ *
+ * This script will call the Bittrex api and create the values for the insert statement
+ *
+ * @return string
+ *  - (value1, value2, value3....value_x), (...), (...)
  */
 
-/* Cannot autoload files when you exec(..) them, so if you
+/*
+    Cannot autoload files when you exec(..) them, so if you
     want to include files here, you'll have to include them manually
-
-This script will call the Bittrex api and create the values for the insert statement
  */
-
 $root = realpath(dirname(__FILE__));
 include '/var/www/html/src/BTXMarketHistoryDetails.php';
 include '/var/www/html/src/Common/Utilities.php';
@@ -22,7 +25,6 @@ $btcUSDValue = $argv[2];
 $explodeList = explode(",", $argv[3]);
 $currDateTimeLow = date('Y-m-d H:i:00');
 $currDateTimeHigh = date('Y-m-d H:i:59');
-//var_dump($explodeList);
 $listOfObjs = array();
 foreach($explodeList as $market) {
     /* Get Market data per coin */
@@ -46,9 +48,9 @@ foreach($explodeList as $market) {
     curl_close($specMarketch);
     $specMarketjson = json_decode($specMarketResult);
     if($specMarketjson->success) {
+        $coin = substr($market, strlen($searchFor));
+        $market = substr($market, 0,strlen($searchFor)-1);
         foreach ($specMarketjson->result as $row) {
-            $coin = substr($market, strlen($searchFor));
-            $market = substr($market, 0,strlen($searchFor)-1);
             /*
             {
             "Id":21450896,

@@ -230,11 +230,15 @@ class BTXMarketHistoryDetails
         $this->btxtimestamp = $btxtimestamp;
     }
 
-
+    /***
+     * Needs to match the constant value list order:
+     * (btxid,coin,market,quantity,\"value\",\"usdValue\",total,filltype,ordertype,btxtimestamp)
+     * @return string
+     */
     public function createCommaDelimitedValueForInsert() {
         $retVal = "";
-        $retVal .= "'$this->coin'";
-        $retVal .= ",$this->btxid";
+        $retVal .= "$this->btxid";
+        $retVal .= ",'$this->coin'";
         $retVal .= ",'$this->market'";
         $retVal .= ",". $this->quantity ."";
         $retVal .= ",". $this->value . "";

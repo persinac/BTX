@@ -126,7 +126,7 @@ if($encodedJSON->success) {
     $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfMarketHistory, BTX_TBL_MARKET_HISTORY);
     /* Run the insert statement */
     $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY[0]);
-    echo $retVal;
+    echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
 } else {
     echo 'CURL Call to bittrex API failed';
 }

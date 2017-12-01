@@ -16,7 +16,7 @@ define('BTX_TBL_MARKET_HISTORY',
 define('BTX_TBL_COIN_MARKET_HISTORY_DETAILS',
     array(
         'btxcoinmarkethistorydetails',
-        "(btxid,coin,market,quantity,\"value\",total,filltype,ordertype,btxtimestamp)"
+        "(btxid,coin,market,quantity,\"value\",\"usdValue\",total,filltype,ordertype,btxtimestamp)"
     )
 );
 define('BTX_TBL_RUNNING_TOTALS', 'btxrunningtotals');
