@@ -13,6 +13,11 @@ define('BTX_TBL_MARKET_HISTORY',
         "(coin,market,volume,\"value\",\"usdValue\",high,low,\"lastSell\",\"currentBid\",\"openBuyOrders\",\"openSellOrders\",btxtimestamp,\"timestamp\")"
     )
 );
-define('BTX_TBL_COIN_MARKET_HISTORY_DETAILS', 'btxcoinmarkethistorydetails');
+define('BTX_TBL_COIN_MARKET_HISTORY_DETAILS',
+    array(
+        'btxcoinmarkethistorydetails',
+        "(btxid,coin,market,quantity,\"value\",total,filltype,ordertype,btxtimestamp)"
+    )
+);
 define('BTX_TBL_RUNNING_TOTALS', 'btxrunningtotals');
 define('BTX_TBL_TRANSACTIONS', 'btxtransactions');

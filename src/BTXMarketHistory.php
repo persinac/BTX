@@ -8,9 +8,6 @@
 
 namespace src;
 
-$root = realpath($_SERVER["DOCUMENT_ROOT"]);
-require_once $root . '/vendor/autoload.php';
-
 class BTXMarketHistory
 {
     private $coin;

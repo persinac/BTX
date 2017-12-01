@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData" overwriteAll="false">
+  <component name="PublishConfigData" overwriteAll="false" uploadOnCheckin="06fc2999-9687-43d9-a495-6c00ec351adc">
     <serverData>
       <paths name="BTX NYC3 Server">
         <serverdata>
@@ -10,5 +10,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myUploadOnCheckinName" value="BTX NYC3 Server" />
   </component>
 </project>
