@@ -4,6 +4,8 @@
  * User: apfba
  * Date: 11/25/2017
  * Time: 3:58 PM
+ *
+ * Bittrex API Call: /public/getmarketsummaries
  */
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
@@ -103,7 +105,7 @@ if($encodedJSON->success) {
                 $convertBTXToEpoch = $datetime->format('U');
 
                 /* Create the object */
-                $btxMarketHistory = new src\BTXMarketHistory(
+                $btxMarketHistory = src\BTXMarketHistory::CreateNewBTXMarketHistoryForInsert(
                     $coin, $market, $row->BaseVolume, number_format($row->Last, "9", ".", "")
                     , number_format($usdtConversion, "2", ".", "")
                     , number_format($row->High, "9", ".", "")
@@ -128,5 +130,5 @@ if($encodedJSON->success) {
     $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY[0]);
     echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
 } else {
-    echo 'CURL Call to bittrex API failed';
+    echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: public/getmarketsummaries failed\n";
 }

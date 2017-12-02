@@ -10,6 +10,7 @@ namespace src;
 
 class BTXMarketHistory
 {
+    private $id;
     private $coin;
     private $market;
     private $volume;
@@ -24,7 +25,7 @@ class BTXMarketHistory
     private $btxTimestamp;
     private $timestamp;
 
-    function __construct($coin, $market, $volume, $value,
+    function __construct($id = "", $coin, $market, $volume, $value,
                          $usdValue, $high, $low, $lastSell, $currentBid,
                          $openBuyOrders, $openSellOrders, $btxTimestamp, $timestamp)
     {
@@ -43,10 +44,17 @@ class BTXMarketHistory
         $this->timestamp = $timestamp;
     }
 
-    public static function CreateNewBTXMarketHistory($coin = "", $market = "", $volume = "", $value = "", $usdValue = "",
+    public static function CreateNewBTXMarketHistory($id, $coin = "", $market = "", $volume = "", $value = "", $usdValue = "",
                                                      $high = "", $low = "", $lastSell = "", $currentBid = "", $openBuyOrders = "",
                                                      $openSellOrders = "", $btxTimestamp = "", $timestamp = "") {
-        return new BTXMarketHistory($coin, $market, $volume, $value, $usdValue, $high, $low, $lastSell, $currentBid,
+        return new BTXMarketHistory($id, $coin, $market, $volume, $value, $usdValue, $high, $low, $lastSell, $currentBid,
+            $openBuyOrders, $openSellOrders, $btxTimestamp, $timestamp);
+    }
+
+    public static function CreateNewBTXMarketHistoryForInsert($coin = "", $market = "", $volume = "", $value = "", $usdValue = "",
+                                                     $high = "", $low = "", $lastSell = "", $currentBid = "", $openBuyOrders = "",
+                                                     $openSellOrders = "", $btxTimestamp = "", $timestamp = "") {
+        return new BTXMarketHistory("", $coin, $market, $volume, $value, $usdValue, $high, $low, $lastSell, $currentBid,
             $openBuyOrders, $openSellOrders, $btxTimestamp, $timestamp);
     }
 

@@ -154,4 +154,6 @@ if($encodedJSON->success) {
     /* Run the insert statement */
     $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0]);
     echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
+} else {
+    echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: public/getmarketsummary failed\n";
 }
