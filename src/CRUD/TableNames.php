@@ -4,6 +4,11 @@
  * User: apfba
  * Date: 10/30/2017
  * Time: 11:45 PM
+ *
+ * Store the table constants as arrays:
+ *      0: Table name
+ *      1: Column names for insert new row
+ *      2: For standard retrieval / update
  */
 define('BTX_TBL_TESTING_LEDGER', 'btxledger');
 define('BTX_TBL_COINS_TO_WATCH', 'btxcoinswatch');
