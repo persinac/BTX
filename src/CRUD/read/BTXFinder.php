@@ -30,12 +30,12 @@ class BTXFinder extends BTXMaster
         $query = sprintf("select * from %s",BTX_TBL_TESTING_LEDGER);
         if ($result = pg_query($query)) {
             $retVal = pg_num_rows($result);
-            pg_free_result($result);
+//            pg_free_result($result);
         }
         return  $retVal;
     }
 
-    public function GetCoinHeader(
+    public function GetCoinHeader($stmntName,
         $id = "", $coin = "", $market = ""
         , $coinname = "", $mintTradeSize = "", $txFee = ""
         , $minConfirmation = "", $isActive = "", $btxTimestamp = ""
@@ -46,77 +46,103 @@ class BTXFinder extends BTXMaster
         $query = sprintf("select * from %s ",
             BTX_TBL_COIN_HEADER[0]);
 
-        /* TODO
-            - Find better way to do this
+        /*
+        Get the parameters for this function
+        Cross reference the param list to the values
+        that were actually passed int
+        Create an array of:
+            field: <paramname>
+            value: <value of crossref param>
+            operator: = (for now)
          */
-        $tempArray = array(
-            array(
-              "field" => "id"
-                , "value"=>$id
-                , "operator"=>"="
-                )
-            , array(
-                    "field" => "coin"
-                , "value"=>$coin
-                , "operator"=>"="
-                )
-            , array(
-                 "field" => "market"
-                , "value"=>$market
-                , "operator"=>"="
-             )
-            , array(
-                "field" => "coinname"
-                , "value"=>$coinname
-                , "operator"=>"="
-            )
-            , array(
-                    "field" => "mintTradeSize"
-                , "value"=>$mintTradeSize
-                , "operator"=>"="
-            )
-            , array(
-                 "field" => "txFee"
-                , "value"=>$txFee
-                , "operator"=>"="
-            )
-            , array(
-                "field" => "minConfirmation"
-                , "value"=>$minConfirmation
-                , "operator"=>"="
-            )
-            , array(
-                    "field" => "minConfirmation"
-                , "value"=>$minConfirmation
-                , "operator"=>"="
-            )
-            , array(
-                "field" => "isActive"
-                , "value"=>$isActive
-                , "operator"=>"="
-            ), array(
-                "field" => "btxTimestamp"
-                , "value"=>$btxTimestamp
-                , "operator"=>"="
-            ), array(
-                "field" => "timestamp"
-                , "value"=>$timestamp
-                , "operator"=>"="
-            ), array(
-                "field" => "logourl"
-                , "value"=>$logourl
-                , "operator"=>"="
-            )
-        );
-
+        $arr = array();
+        $ref = new \ReflectionClass(BTXFinder::CreateNewScoreFinder($this->GetSQLObj()));
+        foreach($ref->getMethods() as $methods) {
+            $name = $methods->getName();
+            if($name == __FUNCTION__) {
+                $paramsList = $methods->getParameters();
+                foreach ($paramsList as $param) {
+                    if(!empty(${$param->name})
+                        && $param->name != "stmntName"
+                    ) {
+                        $arr[] = array(
+                            "field" => $param->name
+                            , "value"=>${$param->name}
+                            , "operator"=>"="
+                        );
+                    }
+                }
+            }
+        }
+//        print_r($arr);
+//        $tempArray = array(
+//            array(
+//              "field" => "id"
+//                , "value"=>$id
+//                , "operator"=>"="
+//                )
+//            , array(
+//                    "field" => "coin"
+//                , "value"=>$coin
+//                , "operator"=>"="
+//                )
+//            , array(
+//                 "field" => "market"
+//                , "value"=>$market
+//                , "operator"=>"="
+//             )
+//            , array(
+//                "field" => "coinname"
+//                , "value"=>$coinname
+//                , "operator"=>"="
+//            )
+//            , array(
+//                    "field" => "mintTradeSize"
+//                , "value"=>$mintTradeSize
+//                , "operator"=>"="
+//            )
+//            , array(
+//                 "field" => "txFee"
+//                , "value"=>$txFee
+//                , "operator"=>"="
+//            )
+//            , array(
+//                "field" => "minConfirmation"
+//                , "value"=>$minConfirmation
+//                , "operator"=>"="
+//            )
+//            , array(
+//                    "field" => "minConfirmation"
+//                , "value"=>$minConfirmation
+//                , "operator"=>"="
+//            )
+//            , array(
+//                "field" => "isActive"
+//                , "value"=>$isActive
+//                , "operator"=>"="
+//            ), array(
+//                "field" => "btxTimestamp"
+//                , "value"=>$btxTimestamp
+//                , "operator"=>"="
+//            ), array(
+//                "field" => "timestamp"
+//                , "value"=>$timestamp
+//                , "operator"=>"="
+//            ), array(
+//                "field" => "logourl"
+//                , "value"=>$logourl
+//                , "operator"=>"="
+//            )
+//        );
+        $tempArray = $arr;
         $retQuery = $this->ConstructWhereStatement($tempArray);
-        $result = pg_prepare($this->GetSQLObj(), "my_query", $query . $retQuery[0]);
-        $result = pg_execute($this->GetSQLObj(), "my_query", $retQuery[1]);
+        $result = pg_prepare($this->GetSQLObj(), $stmntName, $query . $retQuery[0]);
+        $result = pg_execute($this->GetSQLObj(), $stmntName, $retQuery[1]);
         if ($result === false) {}
         else {
             $arr = pg_fetch_all($result);
             $result = $arr;
-            pg_free_result($result);
+//            pg_free_result($result);
         }
         return  $result;
     }

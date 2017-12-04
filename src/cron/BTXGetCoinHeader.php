@@ -55,8 +55,6 @@ if($encodedJSON->success) {
     $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
     $btxFinder = new src\CRUD\read\BTXFinder($connection);
     foreach ($encodedJSON->result as $row) {
-        $coin = substr($row->MarketName, strlen($searchFor));
-        $market = substr($row->MarketName, 0,strlen($searchFor)-1);
         /* Convert date format to Epoch */
         $date = date('U');
         $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s+', $row->Created);
@@ -80,7 +78,8 @@ if($encodedJSON->success) {
             , $date
             , $row->LogoUrl
         );
-        $testing = $btxFinder->GetCoinHeader("", $row->MarketCurrency, $row->BaseCurrency);
+        $stmntName = $row->MarketCurrency . $row->BaseCurrency . $date;
+        $testing = $btxFinder->GetCoinHeader($stmntName, "", $row->MarketCurrency, $row->BaseCurrency);
         if($testing === false) {
 //            echo "Coin does not exist in DB - Insert</br>";
             /* store the object in a list */
@@ -126,10 +125,10 @@ if($encodedJSON->success) {
         /* TODO
             Create an update
          */
+        echo date('Y-m-d H:i:s') . " | Need to update $numOfUpdates row(s)\n";
     } else {
         echo date('Y-m-d H:i:s') . " | No inserts or updates executed\n";
     }
-
 } else {
     echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed\n";
 }
