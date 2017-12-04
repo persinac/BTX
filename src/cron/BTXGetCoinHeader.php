@@ -34,6 +34,7 @@ $encodedJSON = json_decode($result);
 
 if($encodedJSON->success) {
     $listOfHeaders = array();
+    $listOfHeadersToUpdate = array();
     /*
      * "MarketCurrency":"LTC",
      * "BaseCurrency":"BTC",
@@ -48,6 +49,11 @@ if($encodedJSON->success) {
      * "LogoUrl":"https://bittrexblobstorage.blob.core.windows.net/public/6defbc41-582d-47a6-bb2e-d0fa88663524.png"
      * */
 
+    /* Create connection to PGSQL DB */
+    $connection = new src\connections\PGSQLConnector();
+    /* Create a "Keeper" Object that keeps our data, must pass connection info */
+    $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
+    $btxFinder = new src\CRUD\read\BTXFinder($connection);
     foreach ($encodedJSON->result as $row) {
         $coin = substr($row->MarketName, strlen($searchFor));
         $market = substr($row->MarketName, 0,strlen($searchFor)-1);
@@ -74,27 +80,56 @@ if($encodedJSON->success) {
             , $date
             , $row->LogoUrl
         );
+        $testing = $btxFinder->GetCoinHeader("", $row->MarketCurrency, $row->BaseCurrency);
+        if($testing === false) {
+//            echo "Coin does not exist in DB - Insert</br>";
+            /* store the object in a list */
+            $listOfHeaders[] = $btxCoinHeader;
+        }
+        else {
+            $coinRow = $testing[0];
+            if(
+                $btxCoinHeader->getCoinname() == $coinRow['coinname']
+                && $btxCoinHeader->getMintradesize()== $coinRow['mintradesize']
+                && $btxCoinHeader->getTxfee()== $coinRow['txfee']
+                && $btxCoinHeader->getMinconfirmation()== $coinRow['minconfirmation']
+                && $btxCoinHeader->getIsactive()== $coinRow['isactive']
+            ) {
+//                echo "No Update </br>";
+//                echo $btxCoinHeader->getCoinname(). " == ".  $coinRow['coinname'] . " | "
+//                    . $btxCoinHeader->getMintradesize() . " == ".  $coinRow['mintradesize']  . " | "
+//                    . $btxCoinHeader->getTxfee() . " == ". $coinRow['txfee']  . " | "
+//                    . $btxCoinHeader->getMinconfirmation() . " == ". $coinRow['minconfirmation']  . " | "
+//                    . $btxCoinHeader->getIsactive() . " == ". $coinRow['isactive']  . "</br>";
+            }
+            else {
+//                echo "Should Update </br>";
+//                echo $btxCoinHeader->getCoinname(). " == ".  $coinRow['coinname'] . " | "
+//                    . $btxCoinHeader->getMintradesize() . " == ".  $coinRow['mintradesize']  . " | "
+//                    . $btxCoinHeader->getTxfee() . " == ". $coinRow['txfee']  . " | "
+//                    . $btxCoinHeader->getMinconfirmation() . " == ". $coinRow['minconfirmation']  . " | "
+//                    . $btxCoinHeader->getIsactive() . " == ". $coinRow['isactive']  . "</br>";
+                /* store the object in a list */
+                $listOfHeadersToUpdate[] = $btxCoinHeader;
+            }
+        }
 
-        /* TODO
-            - Query our table for the Coin in the current row and compare the fields for
-            any differences
-         */
-
-        /* store the object in a list */
-        $listOfHeaders[] = $btxCoinHeader;
     }
-    /* Create connection to PGSQL DB */
-    $connection = new src\connections\PGSQLConnector();
-    /* Create a "Keeper" Object that keeps our data, must pass connection info */
-    $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
-
+    $numOfInserts = sizeof($listOfHeaders);
+    $numOfUpdates = sizeof($listOfHeadersToUpdate);
     /* Generate Insert statement - each object will have this method */
     $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfHeaders, BTX_TBL_COIN_HEADER);
-    /*
-    TODO
-     - After comparison: Run the insert statement */
-    //$retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_HEADER[0]);
-    echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
+    if($numOfInserts > 0) {
+        $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_HEADER[0]);
+        echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
+    } else if ($numOfUpdates > 0) {
+        /* TODO
+            Create an update
+         */
+    } else {
+        echo date('Y-m-d H:i:s') . " | No inserts or updates executed\n";
+    }
+
 } else {
     echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed\n";
 }

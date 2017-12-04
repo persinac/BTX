@@ -49,7 +49,7 @@ class BTXCoinHeader
     public static function CreateNewBTXCoinHeaderForInsert($coin = "", $market = "", $coinname = "", $mintradesize = "",
                                                   $txfee = "", $minconfirmation = "", $isactive = "",
                                                    $btxTimestamp = "", $timestamp = "", $logourl = "") {
-        return new BTXCoinHeader($coin, $market, $coinname, $mintradesize,
+        return new BTXCoinHeader("", $coin, $market, $coinname, $mintradesize,
             $txfee, $minconfirmation, $isactive, $btxTimestamp, $timestamp, $logourl);
     }
     /**
@@ -228,17 +228,21 @@ class BTXCoinHeader
         $this->logourl = $logourl;
     }
 
+    /***
+     * @return string
+     */
     public function createCommaDelimitedValueForInsert() {
         $retVal = "";
         $retVal .= "'$this->coin'";
         $retVal .= ",'$this->market'";
-        $retVal .= ",". $this->coinname ."";
+        $retVal .= ",'". $this->coinname ."'";
         $retVal .= ",". $this->mintradesize . "";
         $retVal .= ",". $this->txfee ."";
         $retVal .= ",". $this->minconfirmation ."";
         $retVal .= ",". $this->isactive ."";
         $retVal .= ",". $this->btxTimestamp ."";
         $retVal .= ",". $this->timestamp . "";
+        $retVal .= ",'". $this->logourl . "'";
 
         return $retVal;
     }

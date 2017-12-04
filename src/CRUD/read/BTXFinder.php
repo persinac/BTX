@@ -34,6 +34,131 @@ class BTXFinder extends BTXMaster
         }
         return  $retVal;
     }
+
+    public function GetCoinHeader(
+        $id = "", $coin = "", $market = ""
+        , $coinname = "", $mintTradeSize = "", $txFee = ""
+        , $minConfirmation = "", $isActive = "", $btxTimestamp = ""
+        , $timestamp = "", $logourl = ""
+    ) {
+        $retVal = -1;
+
+        $query = sprintf("select * from %s ",
+            BTX_TBL_COIN_HEADER[0]);
+
+        /* TODO
+            - Find better way to do this
+         */
+        $tempArray = array(
+            array(
+              "field" => "id"
+                , "value"=>$id
+                , "operator"=>"="
+                )
+            , array(
+                    "field" => "coin"
+                , "value"=>$coin
+                , "operator"=>"="
+                )
+            , array(
+                 "field" => "market"
+                , "value"=>$market
+                , "operator"=>"="
+             )
+            , array(
+                "field" => "coinname"
+                , "value"=>$coinname
+                , "operator"=>"="
+            )
+            , array(
+                    "field" => "mintTradeSize"
+                , "value"=>$mintTradeSize
+                , "operator"=>"="
+            )
+            , array(
+                 "field" => "txFee"
+                , "value"=>$txFee
+                , "operator"=>"="
+            )
+            , array(
+                "field" => "minConfirmation"
+                , "value"=>$minConfirmation
+                , "operator"=>"="
+            )
+            , array(
+                    "field" => "minConfirmation"
+                , "value"=>$minConfirmation
+                , "operator"=>"="
+            )
+            , array(
+                "field" => "isActive"
+                , "value"=>$isActive
+                , "operator"=>"="
+            ), array(
+                "field" => "btxTimestamp"
+                , "value"=>$btxTimestamp
+                , "operator"=>"="
+            ), array(
+                "field" => "timestamp"
+                , "value"=>$timestamp
+                , "operator"=>"="
+            ), array(
+                "field" => "logourl"
+                , "value"=>$logourl
+                , "operator"=>"="
+            )
+        );
+
+        $retQuery = $this->ConstructWhereStatement($tempArray);
+        $result = pg_prepare($this->GetSQLObj(), "my_query", $query . $retQuery[0]);
+        $result = pg_execute($this->GetSQLObj(), "my_query", $retQuery[1]);
+        if ($result === false) {}
+        else {
+            $arr = pg_fetch_all($result);
+            $result = $arr;
+            pg_free_result($result);
+        }
+        return  $result;
+    }
+
+    /***
+     * @param $params
+     * @return mixed|string
+     */
+    private function ConstructWhereStatement($params) {
+        $whereStatement = "";
+        $whereArray = array();
+        $activeItemArray = array();
+        $paramIdx = 1;
+        foreach ($params as $item) {
+            $tempWhere = "";
+            if(!empty($item['value'])) {
+                $tempWhere = $item['field'] . " ";
+                if($item['operator'] == "in") {
+                    /* this will not work - DO NOT USE */
+                    $tempWhere .= $item['operator'] . "( ";
+                    $tempWhere .=  implode(",", $item['value']);
+                    $tempWhere .= $item['operator'] . ") ";
+                } else {
+                    $tempWhere .= $item['operator'] . ' $' . $paramIdx . '';
+                    $paramIdx += 1;
+                }
+                $activeItemArray[] = $item['value'];
+                $whereArray[] = $tempWhere;
+            }
+        }
+//        var_dump($whereArray);
+        if(sizeof($whereArray) > 1) {
+            $whereStatement = implode(" AND ", $whereArray);
+        } else if (count($whereArray) == 1) {
+            $whereStatement = $whereArray[0];
+        }
+//
+        if(strlen($whereStatement) > 0) {
+            $whereStatement = " WHERE " . $whereStatement;
+        }
+        return array($whereStatement, $activeItemArray);
+    }
     /*
     public function GetTagReferenceData() {
         $retVal = -1;
