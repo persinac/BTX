@@ -78,7 +78,7 @@ foreach($explodeList as $market) {
                     $fillType = 2;
                 }
 
-                if($row->OrderType == "ORDER_TYPE_SELL") {
+                if($row->OrderType == "SELL") {
                     $orderType = 2;
                 }
 

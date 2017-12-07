@@ -12,8 +12,17 @@
  *  response
  *      <data>
  *
+ * Query Parameters:
+ *  coin    - Text / Array of text
+ *  market  - Text / Array of text
+ *  orderBy - Array of text
+ *  orderASC - integer 0/1
+ *  startIndex - integer
+ *  batchSize - integer
+ *
  *  Sample:
  *   http://159.203.122.96/src/api/get/getbtxcoinheader.php?coin=ADA&market=BTC
+ *   http://159.203.122.96/src/api/get/getbtxcoinheader.php?coin[]=EMC2&coin[]=ADA&coin[]=DOGE&market[]=BTC&market[]=ETH&orderBy[]=coin&orderBy[]=market&orderASC=1
  */
 
 $root = realpath($_SERVER["DOCUMENT_ROOT"]);
@@ -31,14 +40,20 @@ $apiRetObject = \src\APIReturnObject::CreateNewAPIReturnObject(
     false, -1, "", ""
 );
 
-$testing = $btxFinder->GetCoinHeader($stmntName, "", $output['coin'], $output['market']);
+$testing = $btxFinder->GetCoinHeader(
+    $stmntName, "", $output['coin'], $output['market']
+    , "", "", ""
+    , "", "", ""
+    , "", "", $output['orderBy'], $output['orderASC']
+    , $output['startIndex'], $output['batchSize']
+);
 if($testing === false) {
     $apiRetObject->setSuccess(true);
     $apiRetObject->setResponse("Coin does not exist in DB");
 }
 else {
     $apiRetObject->setSuccess(true);
-    $apiRetObject->setResponse($testing[0]);
+    $apiRetObject->setResponse($testing);
 }
 
 //var_dump();
