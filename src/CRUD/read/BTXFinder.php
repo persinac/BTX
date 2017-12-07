@@ -86,7 +86,8 @@ class BTXFinder extends BTXMaster
                 }
             }
         }
-        $tempArray = $arr;
+        $arr = SQLCreationUtility::ConstructFieldsForWhereStatement(
+            $ref, __FUNCTION__, $this->fieldsToNotCheck);
         /* First construct the where statement */
         $retQuery = SQLCreationUtility::ConstructWhereStatement($arr, $this->fieldsToNotCheck);
         /* Second - construct the Order by */
@@ -94,10 +95,11 @@ class BTXFinder extends BTXMaster
         /* Third - construct the paging */
         $limitOffset = SQLCreationUtility::ConstructLimitOffsetStatement($batchSize, $startIndex);
         /* put it all together */
-        $result = pg_prepare($this->GetSQLObj(), $stmntName, $query . $retQuery[0] ." ". $orderBy ." ". $limitOffset);
+        $fullSQL = $query . $retQuery[0] ." ". $orderBy ." ". $limitOffset;
+        $result = pg_prepare($this->GetSQLObj(), $stmntName, $fullSQL);
 
         /* Flatten the array(s) */
-        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($tempArray));
+        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($arr));
         $valuesForPrepStmnt = array();
         foreach($it as $k => $v) {
             /* find the value(s) and search for integers for the indexes in the arrays */
@@ -175,7 +177,7 @@ class BTXFinder extends BTXMaster
                 }
             }
         }
-        $tempArray = $arr;
+
         /* First construct the where statement */
         $retQuery = SQLCreationUtility::ConstructWhereStatement($arr, $this->fieldsToNotCheck);
         /* Second - construct the Order by */
@@ -187,7 +189,7 @@ class BTXFinder extends BTXMaster
         $result = pg_prepare($this->GetSQLObj(), $stmntName, $fullSQL);
 
         /* Flatten the array(s) */
-        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($tempArray));
+        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($arr));
         $valuesForPrepStmnt = array();
         foreach($it as $k => $v) {
             /* find the value(s) and search for integers for the indexes in the arrays */
@@ -273,7 +275,7 @@ class BTXFinder extends BTXMaster
                 }
             }
         }
-        $tempArray = $arr;
+
         /* First construct the where statement */
         $retQuery = SQLCreationUtility::ConstructWhereStatement($arr, $this->fieldsToNotCheck);
         /* Second - construct the Order by */
@@ -282,11 +284,10 @@ class BTXFinder extends BTXMaster
         $limitOffset = SQLCreationUtility::ConstructLimitOffsetStatement($batchSize, $startIndex);
         /* put it all together */
         $fullSQL = $query . $retQuery[0] ." ". $orderBy ." ". $limitOffset;
-//        var_dump($fullSQL);
         $result = pg_prepare($this->GetSQLObj(), $stmntName, $fullSQL);
 
         /* Flatten the array(s) */
-        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($tempArray));
+        $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($arr));
         $valuesForPrepStmnt = array();
         foreach($it as $k => $v) {
             /* find the value(s) and search for integers for the indexes in the arrays */

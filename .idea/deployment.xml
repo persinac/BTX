@@ -2,7 +2,7 @@
 <project version="4">
   <component name="PublishConfigData" overwriteAll="false" persistUploadOnCheckin="false">
     <serverData>
-      <paths name="BTX NYC3 Server">
+      <paths name="BTX NYC3">
         <serverdata>
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />

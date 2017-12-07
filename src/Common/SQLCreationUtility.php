@@ -11,6 +11,66 @@ namespace src\Common;
 
 class SQLCreationUtility
 {
+
+    /***
+     * Get the parameters for the function name passed in
+     * Cross reference the param list to the values that were actually passed int
+     * Create an array of:
+     *   field: <paramname>
+     *   value: <value of crossref param>
+     *   operator: <calulated value>
+     *
+     * @param $reflectionObj
+     * @param $methodNameToCheck
+     * @param $fieldsToNotCheck
+     * @return array
+     */
+    public static function ConstructFieldsForWhereStatement(
+        $reflectionObj, $methodNameToCheck, $fieldsToNotCheck) {
+        $arr = array();
+        foreach($reflectionObj->getMethods() as $methods) {
+            $name = $methods->getName();
+            if($name == $methodNameToCheck) {
+                $paramsList = $methods->getParameters();
+                var_dump($paramsList);
+                foreach ($paramsList as $param) {
+                    $operator = "=";
+                    $value = ${$param->name};
+                    $field = $param->name;
+
+                    if(!empty(${$param->name})
+                        && !in_array($param->name, $fieldsToNotCheck)
+                    ) {
+                        if(gettype(${$param->name}) == "array") {
+                            $operator = "in";
+                        }
+
+                        if($field == "volumeGT") {
+                            $field = "volume";
+                            $operator = ">";
+                        } else if($field == "volumeLT") {
+                            $field = "volume";
+                            $operator = "<";
+                        } else if($field == "valueGT") {
+                            $field = "value";
+                            $operator = ">";
+                        } else if($field == "valueLT") {
+                            $field = "value";
+                            $operator = "<";
+                        }
+
+                        $arr[] = array(
+                            "field" => $field
+                        , "value"=> $value
+                        , "operator"=>$operator
+                        );
+                    }
+                }
+            }
+        }
+        return $arr;
+    }
+
     /***
      * @param $params
      * @return mixed|string
@@ -59,8 +119,7 @@ class SQLCreationUtility
 
     public static function ConstructOrderByStatement($fields, $orderByAsc = "") {
         $orderBy = "";
-
-        if(sizeof($fields) > 0) {
+        if(sizeof($fields) > 0 && !empty($fields)) {
             $orderBy .= "ORDER BY ";
             $orderBy .= implode(",", $fields);
 
