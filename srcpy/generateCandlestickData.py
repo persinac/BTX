@@ -8,7 +8,12 @@ from pprint import pprint
 from datetime import timedelta
 from config import config
 
-def reject_outliers(data, m=2):
+def reject_outliers(data, m=.75):
+#     print(numpy.mean(data))
+#     print(data-numpy.mean(data))
+#     print(numpy.std(data))
+#     print(m*numpy.std(data))
+#     print(abs(data - numpy.mean(data)) < m * numpy.std(data))
     return data[abs(data - numpy.mean(data)) < m * numpy.std(data)]
 
 try:
@@ -36,8 +41,8 @@ try:
     # convert the times to EPOCH
     epochPrevTime = int(previousMinuteReplaceSeconds.timestamp())
     epochCurrTime = int(currMinuteTimeReplaceSeconds.timestamp())
-    print(str(previousMinuteReplaceSeconds) + " | " + str(epochPrevTime)
-          + " Curr: " + str(currMinuteTimeReplaceSeconds) + " | " + str(epochCurrTime))
+    # print(str(previousMinuteReplaceSeconds) + " | " + str(epochPrevTime)
+    #       + " Curr: " + str(currMinuteTimeReplaceSeconds) + " | " + str(epochCurrTime))
 
 
     ##
@@ -64,12 +69,12 @@ try:
     cursor.execute(sqlStmnt)
     rows = cursor.fetchall()
     ## Open-High-Low-Close Candlestick(s)
-    opener = rows[0][3]
-    closer = rows[len(rows)-1][3]
     ##this inline for each thing is known as: List Comprehensions
     x = numpy.array([row[3] for row in rows])
     #filter any outliers
     filtered = numpy.array(reject_outliers(x))
+    opener = filtered[0]
+    closer = filtered[len(filtered) - 1]
     print(opener)
     print(closer)
     print(filtered.min())
