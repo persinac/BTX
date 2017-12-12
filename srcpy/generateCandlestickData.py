@@ -1,3 +1,4 @@
+# noinspection PyInterpreter
 import time
 import numpy
 import talib
@@ -5,23 +6,25 @@ import psycopg2
 from datetime import datetime
 from pprint import pprint
 from datetime import timedelta
+from config import config
 
 def reject_outliers(data, m=2):
     return data[abs(data - numpy.mean(data)) < m * numpy.std(data)]
 
 try:
-    connect_str = "dbname='btx' user='btx_user' host='localhost' password='btx_server_112817'"
-    # use our connection values to establish a connection
-    conn = psycopg2.connect(connect_str)
-    # create a psycopg2 cursor that can execute queries
-    # cursor = conn.cursor()
-    # cursor.execute("""SELECT * from btxcoinheader""")
-    # rows = cursor.fetchall()
-    # print(rows)
-    # print(datetime.datetime.now())
-    epoch_time = int(time.time())
+    params = config.config()
 
+    # use our connection values to establish a connection
+    conn = psycopg2.connect(
+        host=params['pgsql']['host']
+        ,database=params['pgsql']['database']
+        , user=params['pgsql']['user']
+        , password=params['pgsql']['password']
+    )
+
+    epoch_time = int(time.time())
     currentTime = datetime.now()
+
     # Actually going to calculate 1 minute behind - to allow the
     # other batch jobs to complete / insert data
     previousMinuteTime_nonFormat = currentTime - timedelta(minutes=2)
@@ -72,5 +75,4 @@ try:
     print(filtered.min())
     print(filtered.max())
 except Exception as e:
-    print("Uh oh, can't connect. Invalid dbname, user or password?")
     print(e)
