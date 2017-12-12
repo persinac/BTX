@@ -22,7 +22,7 @@ class BTXMaster
         $this->btxMasterSQL = $pgconn;
     }
 
-    public function GetMySQLObj() {
-        return $this->btxMasterSQL->btxMasterSQL;
+    public function GetSQLObj() {
+        return $this->btxMasterSQL->pg;
     }
 }
