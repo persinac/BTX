@@ -1,1 +1,5 @@
 /src/passwords
+.idea/php.xml
+.idea/sqldialects.xml
+.idea/workspace.xml
+/External Libraries/*
