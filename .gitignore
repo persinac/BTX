@@ -1,10 +1,4 @@
-<<<<<<< HEAD
 /src/passwords
-.idea/php.xml
-.idea/sqldialects.xml
-.idea/workspace.xml
 /External Libraries/*
-.idea/*
-=======
-/src/passwords
->>>>>>> cc0a3a484df9c3ed00c522374e19bc500bd87a09
+.idea/*.*
+.idea/vcs.xml
