@@ -11,4 +11,3 @@ function CalculateUSDValue($usdtBTCVal, $value) {
     $retVal = $usdtBTCVal * $value;
     return $retVal;
 }
-
