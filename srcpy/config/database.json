@@ -1,0 +1,8 @@
+{
+    "pgsql":{
+        "host":"localhost",
+        "user":"btx_user",
+        "password":"btx_server_112817",
+        "database":"btx"
+    }
+}
