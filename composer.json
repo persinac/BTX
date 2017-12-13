@@ -2,9 +2,10 @@
   "autoload": {
     "files": [
       "src/settings.php"
-      , "src/passwords/btx_passwords.php"
-      , "src/CRUD/TableNames.php"
-      , "src/Common/Utilities.php"
+    , "src/passwords/btx_passwords.php"
+    , "src/CRUD/TableNames.php"
+    , "src/Common/Utilities.php"
+    , "src/constants.php"
     ],
     "psr-4": {
       "src\\": "src"
