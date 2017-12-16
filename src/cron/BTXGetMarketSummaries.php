@@ -66,7 +66,11 @@ $numOfInserts = count($encodedJSON->result);
 if($btcUSDTjson->success) {
     $btcUSDValue = $btcUSDTjson->result[0]->Last;
 }
+$apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARIES_DIRECTORY;
+$apiFileDataVerifyName .= date('Y_m_d_H:i:s');
+$retValToEcho = "";
 if($encodedJSON->success) {
+    $apiFileDataVerifyName .= "___SUCCESS";
     $searchParty = array('BTC-', 'USDT-');
     $listOfMarketHistory = array();
     foreach ($searchParty as $searchFor) {
@@ -128,7 +132,13 @@ if($encodedJSON->success) {
     $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfMarketHistory, BTX_TBL_MARKET_HISTORY);
     /* Run the insert statement */
     $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_MARKET_HISTORY[0]);
-    echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
+    $retValToEcho = date('Y-m-d H:i:s') . " | " . $retVal . "\n";
 } else {
-    echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: public/getmarketsummaries failed\n";
+    $apiFileDataVerifyName .= "___FAIL";
+    $retValToEcho = date('Y-m-d H:i:s') . " | CURL Call to bittrex API: public/getmarketsummaries failed\n";
 }
+$apiFileDataVerifyName .= ".json";
+$fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing
+$fileData = json_encode($encodedJSON->result) . "\n" . $retValToEcho;
+fwrite($fileHandler, $fileData);
+echo $retValToEcho;

@@ -18,14 +18,19 @@
 $root = realpath(dirname(__FILE__));
 include '/var/www/html/src/BTXMarketHistoryDetails.php';
 include '/var/www/html/src/Common/Utilities.php';
+include '/var/www/html/src/constants.php';
 
 
 $searchFor = $argv[1];
 $btcUSDValue = $argv[2];
 $explodeList = explode(",", $argv[3]);
+$searchNum = $argv[4];
 $currDateTimeLow = date('Y-m-d H:i:00');
 $currDateTimeHigh = date('Y-m-d H:i:59');
 $listOfObjs = array();
+$retValToEcho = "";
+$dataArr = array();
+
 foreach($explodeList as $market) {
     /* Get Market data per coin */
     $specMarketParams=['market'=>$market];
@@ -81,7 +86,18 @@ foreach($explodeList as $market) {
                 if($row->OrderType == "SELL") {
                     $orderType = 2;
                 }
-
+                $tempObj = new stdClass();
+                $tempObj->Id = $row->Id;
+                $tempObj->coin = $coin;
+                $tempObj->market = $market;
+                $tempObj->Quantity = $row->Quantity;
+                $tempObj->Price = $row->Price;
+                $tempObj->usdtConversion = $usdtConversion;
+                $tempObj->Total = $row->Total;
+                $tempObj->FillType = $row->FillType;
+                $tempObj->OrderType = $row->OrderType;
+                $tempObj->TimeStamp = $row->TimeStamp;
+                $dataArr[] = $tempObj;
                 /* Create the object */
                 $btxMarketHistory = src\BTXMarketHistoryDetails::CreateNewBTXMarketHistoryDetailsForInsert(
                     $row->Id,
@@ -101,5 +117,13 @@ foreach($explodeList as $market) {
     }
 }
 foreach ($listOfObjs as $item) {
-    echo "(" . $item->createCommaDelimitedValueForInsert() . "),";
+    $retValToEcho .= "(" . $item->createCommaDelimitedValueForInsert() . "),";
 }
+$apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY;
+$apiFileDataVerifyName .= date('Y_m_d_H:i:s') . "-". $searchNum;
+$apiFileDataVerifyName .= ".json";
+$fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing
+$fileData = json_encode($dataArr);
+fwrite($fileHandler, $fileData);
+
+echo $retValToEcho;

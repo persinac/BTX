@@ -137,9 +137,9 @@ if($encodedJSON->success) {
      * $btcUSDValue > the current dollar value of BTC so that we don't have to query for it again
      * $implodedbtcList___ > the list to parse and gather data from
      */
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListOne", $btcListOneRetVal);
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListTwo", $btcListTwoRetVal);
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListThree", $btcListThreeRetVal);
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListOne 1", $btcListOneRetVal);
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListTwo 2", $btcListTwoRetVal);
+    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcListThree 3", $btcListThreeRetVal);
     $valuesInsert = $usdtRetVal[0];
     $valuesInsert .= $btcListOneRetVal[0];
     $valuesInsert .= $btcListTwoRetVal[0];
