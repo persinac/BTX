@@ -4,6 +4,8 @@ import talib
 import psycopg2
 import sys
 import logging
+import math
+import json
 from datetime import datetime
 from pprint import pprint
 from datetime import timedelta
@@ -27,19 +29,25 @@ try:
         , user=params['pgsql']['user']
         , password=params['pgsql']['password']
     )
-    currCoin = 'ETH'
+    currCoin = 'POT'
     currMarket = 'BTC'
     sqlSelect = "SELECT closer from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
-    sqlStmnt = sqlSelect + " " + sqlWhere
+    sqlOrder = "ORDER BY timestampintervallow DESC"
+    sqlLimit = "LIMIT 100"
+    sqlStmnt = sqlSelect + " " + sqlWhere + " " + sqlOrder + " " + sqlLimit
     cursor = conn.cursor()
     cursor.execute(sqlStmnt)
     rows = cursor.fetchall()
     if len(rows) > 0:
-        close = numpy.array([row[0] for row in rows])
-        print (close)
+        initialData = rows[::-1]
+        close = numpy.array([row[0] for row in initialData])
+        # print (close)
         output = talib.SMA(close, 14)
-        print(output)
+        cleanedList = [[i, output[i]] for i in range(len(output)) if not math.isnan(output[i])]
+        print(cleanedList)
+    # print ('Number of arguments: %s args' % (len(sys.argv)))
+    # print ('Argument List:' + str(sys.argv))
 except Exception as e:
     print("Uh oh, you done fucked up")
     print(e)
