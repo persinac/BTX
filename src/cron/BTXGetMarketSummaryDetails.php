@@ -60,8 +60,6 @@ $valuesInsert = "";
 $btcUSDValue = 0.00;
 
 $numOfInserts = count($encodedJSON->result);
-$currDateTimeLow = date('Y-m-d H:i:00');
-$currDateTimeHigh = date('Y-m-d H:i:59');
 if($btcUSDTjson->success) {
     $btcUSDValue = $btcUSDTjson->result[0]->Last;
 }
@@ -102,7 +100,6 @@ if($encodedJSON->success) {
         }
 
     }
-
     $usdtRetVal = "";
     $btcListOneRetVal = "";
     $btcListTwoRetVal = "";
