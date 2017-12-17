@@ -37,23 +37,30 @@ try:
 
     # Actually going to calculate 1 minute behind - to allow the
     # other batch jobs to complete / insert data
-    previousMinuteTime_nonFormat = currentTime - timedelta(minutes=2)
+    previousMinuteTime_nonFormat = currentTime - timedelta(minutes=3)
     previousMinuteReplaceSeconds = previousMinuteTime_nonFormat.replace(second=0, microsecond=0)
 
-    currMinuteTime_nonFormat = currentTime - timedelta(minutes=1)
+    currMinuteTime_nonFormat = currentTime - timedelta(minutes=2)
     currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
 
     # convert the times to EPOCH
     epochPrevTime = int(previousMinuteReplaceSeconds.timestamp())
     epochCurrTime = int(currMinuteTimeReplaceSeconds.timestamp())
 
+    ###
+    # testing
+    ###
+    # epochPrevTime = 1513533960
+    # epochCurrTime = 1513534020
+
     ##
     # get unique list of coins and markets
     ##
     sqlSelect = "SELECT coin, market from btxcoinheader"
+    sqlWhere = "" #"WHERE market = '%s' AND coin = '%s' " % ('BTC', 'ADA')
     sqlGroupBy = "group by coin, market"
     sqlOrderBy = "ORDER BY market, coin"
-    sqlStmnt = sqlSelect + " " + sqlGroupBy + " " + sqlOrderBy
+    sqlStmnt = sqlSelect + " " + sqlWhere + " " + sqlGroupBy + " " + sqlOrderBy
     cursor = conn.cursor()
     cursor.execute(sqlStmnt)
     uniqueRows = cursor.fetchall()
@@ -91,7 +98,8 @@ try:
             x = numpy.array([row[3] for row in rows])
             #filter any outliers
             if len(x) > 10:
-                filtered = numpy.array(reject_outliers(x))
+                filtered = x
+                    #numpy.array(reject_outliers(x))
             else:
                 filtered = x
             opener = numpy.round(filtered[0], 9)
@@ -132,10 +140,10 @@ try:
         for thing in dataTuple
     )
     if len(rowsToInsert) > 0:
-        cursor.execute("""INSERT INTO tkmcandlesticks(
+         cursor.execute("""INSERT INTO tkmcandlesticks(
             coin, market, opener, closer, high, low, exchange, timestampintervallow, timestampintervalhigh, createdon)
             VALUES """ + rowsToInsert)
-        conn.commit()
+         conn.commit()
     else:
         print(rowsToInsert + " | " + str(len(rowsToInsert)))
 except Exception as e:
