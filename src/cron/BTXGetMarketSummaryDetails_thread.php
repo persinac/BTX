@@ -25,12 +25,13 @@ $searchFor = $argv[1];
 $btcUSDValue = $argv[2];
 $explodeList = explode(",", $argv[3]);
 $searchNum = $argv[4];
-$currDateTimeLow = date('Y-m-d H:i:00');
-$currDateTimeHigh = date('Y-m-d H:i:59');
+$currDateTime = new DateTime();
+date_sub($currDateTime, date_interval_create_from_date_string('1 minute'));
+$currDateTimeLow = $currDateTime->format('Y-m-d H:i:00');
+$currDateTimeHigh = $currDateTime->format('Y-m-d H:i:59');
 $listOfObjs = array();
 $retValToEcho = "";
 $dataArr = array();
-
 foreach($explodeList as $market) {
     /* Get Market data per coin */
     $specMarketParams=['market'=>$market];
@@ -67,6 +68,7 @@ foreach($explodeList as $market) {
             "OrderType":"BUY"
             }
              */
+
             $convertDate = DateTime::createFromFormat('Y-m-d\TH:i:s+', $row->TimeStamp);
             $dateCompare = $convertDate->format('Y-m-d H:i:s');
             if($dateCompare >= $currDateTimeLow && $dateCompare <= $currDateTimeHigh) {
@@ -98,7 +100,7 @@ foreach($explodeList as $market) {
                 $tempObj->OrderType = $row->OrderType;
                 $tempObj->TimeStamp = $row->TimeStamp;
                 $dataArr[] = $tempObj;
-                /* Create the object */
+
                 $btxMarketHistory = src\BTXMarketHistoryDetails::CreateNewBTXMarketHistoryDetailsForInsert(
                     $row->Id,
                     $coin,
@@ -110,15 +112,17 @@ foreach($explodeList as $market) {
                     $fillType,
                     $orderType,
                     $convertDate->format('U')
-                    );
+                );
                 $listOfObjs[] = $btxMarketHistory;
             }
         }
     }
 }
+
 foreach ($listOfObjs as $item) {
     $retValToEcho .= "(" . $item->createCommaDelimitedValueForInsert() . "),";
 }
+
 $apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY;
 $apiFileDataVerifyName .= date('Y_m_d_H:i:s') . "-". $searchNum;
 $apiFileDataVerifyName .= ".json";
@@ -127,3 +131,4 @@ $fileData = json_encode($dataArr);
 fwrite($fileHandler, $fileData);
 
 echo $retValToEcho;
+
