@@ -1,6 +1,22 @@
 <?php
 
 require_once("src/settings.php");
+$intervalDropdown = "";
+$intervalDropdown .= "<select id='interval'>";
+$intervalDropdown .= '<option value="1">1 Min</option>';
+$intervalDropdown .= '<option value="2">2 Min</option>';
+$intervalDropdown .= '<option value="5">5 Min</option>';
+$intervalDropdown .= '<option value="15">15 Min</option>';
+$intervalDropdown .= '<option value="30">30 Min</option>';
+$intervalDropdown .= '<option value="60">1 Hr</option>';
+//$intervalDropdown .= '<option value="2">USDT</option>';
+$intervalDropdown .= "</select>";
+
+$marketDropdown = "";
+$marketDropdown .= "<select>";
+$marketDropdown .= '<option value="BTC">BTC</option>';
+$marketDropdown .= '<option value="USDT">USDT</option>';
+$marketDropdown .= "</select>";
 
 /**
  * Created by PhpStorm.
@@ -81,13 +97,13 @@ require_once("src/settings.php");
         <div id="dyn_content">
             <div class="row">
                 <div class="col-lg-4" id="filters_markets">
-
+                    <?php echo $marketDropdown; ?>
                 </div>
                 <div class="col-lg-4" id="filters_coins">
 
                 </div>
-                <div class="col-lg-4" id="filters_xyz">
-
+                <div class="col-lg-4" id="filters_intervals">
+                    <?php echo $intervalDropdown; ?>
                 </div>
             </div>
             <div class="row">
@@ -156,12 +172,13 @@ require_once("src/settings.php");
         $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
         $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
         $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
-        BuildFilters();
-        // BuildRSI();
-        // BuildSMA();
-        // BuildStochastics();
-        // BuildMACD();
-        BuildHomePage("ETH");
+        var params = {
+            "market": "BTC",
+            "coin": "1ST",
+            "interval": $("#filters_intervals").find(":selected").attr("value")
+        };
+        BuildFilters(params);
+        BuildHomePage(params);
         $("#home a").click(function() {
             // BuildHomePage();
             $("#employeeList").removeClass("active");
@@ -199,7 +216,12 @@ require_once("src/settings.php");
             $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
             $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
             $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
-            BuildHomePage($("#filters_coins").find(":selected").text());
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
         });
 
         $('#dyn_content').delegate('table#employee tr td a.details', 'click', function() {
@@ -226,13 +248,43 @@ require_once("src/settings.php");
             $("#value").html($(this))
         });
 
+        $('#dyn_content').on('change', '#filters_markets', function(){
+            // $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text()
+            };
+            console.log(params);
+            BuildFilters(params);
+            // BuildHomePage(params);
+        });
+
         $('#dyn_content').on('change', '#filters_coins', function(){
-            // $("#value").html($("#filters_coins").find(":selected").text());
             $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
             $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
             $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
             $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
-            BuildHomePage($("#filters_coins").find(":selected").text())
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
+        });
+
+        $('#dyn_content').on('change', '#filters_intervals', function(){
+            $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
         });
 
         $('#dyn_content').delegate('ul li a', 'click', function() {
