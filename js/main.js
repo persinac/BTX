@@ -2,14 +2,16 @@
  * Created by apersinger on 4/23/2017.
  */
 
-function BuildHomePage(coin) {
-    if(coin === "") {
-        coin = "ETH"
-    }
-    BuildSMA(coin);
-    BuildRSI(coin);
-    BuildStochastics(coin);
-    BuildMACD(coin);
+function BuildHomePage(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    BuildSMA(optionalParams);
+    BuildRSI(optionalParams);
+    BuildStochastics(optionalParams);
+    BuildMACD(optionalParams);
     // $.ajax({
     //     type: "GET",
     //     url: "/src/api/get/getCalculatedSMA.php",
@@ -26,27 +28,42 @@ function BuildHomePage(coin) {
     // });
 }
 
-function BuildFilters() {
+function BuildFilters(optionalParams) {
+    var market = optionalParams.market || "BTC";
     $.ajax({
         type: "GET",
         url: "/src/buildCoinMarketDropdown.php",
         dataType: "json",
         success: function(response) {
             console.log(response);
-            $("#filters_markets").html(response['markets']);
-            $("#filters_coins").html(response['coinMarkets'][1]['coins']);
+            // $("#filters_markets").html(response['markets']);
+            if(market == "BTC") {
+                $("#filters_coins").html(response['coinMarkets'][1]['coins']);
+            } else {
+                $("#filters_coins").html(response['coinMarkets'][0]['coins']);
+            }
+
         }
     });
 }
 
-function BuildSMA(coin) {
+function BuildSMA(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
     $.ajax({
         type: "GET",
         url: "/src/api/get/getCalculatedSMA.php",
         dataType: "json",
         data: {
-            market: "BTC"
-            , coin: coin},
+            market: market
+            , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
+        },
         success: function(response) {
             console.log(response);
             $("#sma_loading").attr('src',"");
@@ -56,14 +73,22 @@ function BuildSMA(coin) {
     });
 }
 
-function BuildRSI(coin) {
+function BuildRSI(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
     $.ajax({
         type: "GET",
         url: "/src/api/get/getCalculatedRSI.php",
         dataType: "json",
         data: {
-            market: "BTC"
+            market: market
             , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
         },
         success: function(response) {
             console.log(response);
@@ -73,14 +98,22 @@ function BuildRSI(coin) {
     });
 }
 
-function BuildStochastics(coin) {
+function BuildStochastics(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
     $.ajax({
         type: "GET",
         url: "/src/api/get/getCalculatedStochastic.php",
         dataType: "json",
         data: {
-            market: "BTC"
+            market: market
             , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
         },
         success: function(response) {
             console.log("STOCHASTICS: ");
@@ -91,14 +124,22 @@ function BuildStochastics(coin) {
     });
 }
 
-function BuildMACD(coin) {
+function BuildMACD(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
     $.ajax({
         type: "GET",
         url: "/src/api/get/getCalculatedMACD.php",
         dataType: "json",
         data: {
-            market: "BTC"
+            market: market
             , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
         },
         success: function(response) {
             console.log("MACD: ");
@@ -332,7 +373,7 @@ function DisplayCurrentCronJobList() {
 function drawBasic(myData) {
 
     var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
+    data.addColumn('timeofday', 'X');
     data.addColumn('number', 'SMA');
     // A column for custom tooltip content
     //data.addColumn({type: 'string', role: 'tooltip'});
@@ -371,7 +412,7 @@ function drawBasic(myData) {
 
 function drawBasicRSI(myData) {
     var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
+    data.addColumn('timeofday', 'X');
     data.addColumn('number', 'RSI');
     // A column for custom tooltip content
     data.addColumn({type: 'string', role: 'tooltip'});
@@ -396,7 +437,7 @@ function drawBasicRSI(myData) {
 
 function drawBasicStochastic(myData) {
     var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
+    data.addColumn('timeofday', 'X');
     data.addColumn('number', 'SlowK');
     data.addColumn('number', 'SlowD');
     // A column for custom tooltip content
@@ -424,7 +465,7 @@ function drawBasicStochastic(myData) {
 
 function drawBasicMACD(myData) {
     var data = new google.visualization.DataTable();
-    data.addColumn('number', 'X');
+    data.addColumn('timeofday', 'X');
     data.addColumn('number', 'MACD');
     data.addColumn('number', 'Signal');
     // A column for custom tooltip content

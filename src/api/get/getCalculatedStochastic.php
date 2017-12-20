@@ -19,13 +19,26 @@ if(is_null($output['coin']) || is_null($output['market'])) {
 
     $market = $output['market'];
     $coin = $output['coin'];
-    $limit = 100;
-    if(!empty($output['limit'])) {
-        $limit = $output['limit'];
-    }
     $interval = 1;
     if(!empty($output['interval'])) {
         $interval = $output['interval'];
+    }
+
+    $limit = 100;
+    if($interval == 1) {
+        $limit = $output['limit'];
+    } else if($interval == 2) {
+        $limit = 200;
+    } else if($interval == 5) {
+        $limit = 500;
+    } else if($interval == 15) {
+        $limit = 1500;
+    } else if($interval == 30) {
+        $limit = 3000;
+    } else if($interval == 60) {
+        $limit = 6000;
+    } else if(!empty($output['limit'])) {
+        $limit = $output['limit'];
     }
     $timePeriod = 14;
     if(!empty($output['timePeriod'])) {

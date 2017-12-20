@@ -38,7 +38,7 @@ $usdtCoins = $btxFinder->GetCoinHeaderForDropdown(
 
 
 $marketDropdown = "";
-$marketDropdown .= "<select disabled>";
+$marketDropdown .= "<select>";
 $marketDropdown .= '<option value="BTC">BTC</option>';
 $marketDropdown .= '<option value="USDT">USDT</option>';
 $marketDropdown .= "</select>";
