@@ -34,7 +34,7 @@ try:
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT id, high, low, closer from tkmcandlesticks"
+    sqlSelect = "SELECT id, high, low, closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,13 +44,20 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([item[3] for item in initialData])
-        high = numpy.array([item[1] for item in initialData])
-        low = numpy.array([item[2] for item in initialData])
-        # fiveMinuteCalc = numpy.array([close[j] for j in range(len(close)) if j % 5 == 0])
+        close = numpy.array([initialData[a][3] for a in range(len(initialData)) if a % interval == 0])
+        high = numpy.array([initialData[b][1] for b in range(len(initialData)) if b % interval == 0])
+        low = numpy.array([initialData[c][2] for c in range(len(initialData)) if c % interval == 0])
+        timestamp = [initialData[d][4] for d in range(len(initialData)) if d % interval == 0]
         slowk, slowd = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
-        # outputSMA = talib.SMA(close, 14)
-        cleanedList = [[j, slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))] for j in range(len(slowk)) if not math.isnan(slowk[j]) or not math.isnan(slowd[j]) ]
+        cleanedList = [
+            [
+                [
+                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%H')),
+                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%M')),
+                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%S'))
+                ]
+                , slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))
+            ] for j in range(len(slowk)) if not math.isnan(slowk[j]) or not math.isnan(slowd[j]) ]
         print(cleanedList)
 
 

@@ -36,7 +36,7 @@ try:
     fastPeriod = int(sys.argv[5])
     slowPeriod = int(sys.argv[6])
     signalPeriod = int(sys.argv[7])
-    sqlSelect = "SELECT id, closer from tkmcandlesticks"
+    sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -46,10 +46,19 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([item[1] for item in initialData])
-        # fiveMinuteCalc = numpy.array([close[j] for j in range(len(close)) if j % 5 == 0])
-        macd, macdsignal, macdhist = talib.MACD(close, fastperiod=fastPeriod, slowperiod=slowPeriod, signalperiod=signalPeriod)
-        cleanedList = [[j, macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))] for j in range(len(macd))
+        intervalCalc = numpy.array(
+            [[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
+        listForMACD = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
+        macd, macdsignal, macdhist = talib.MACD(listForMACD, fastperiod=fastPeriod, slowperiod=slowPeriod, signalperiod=signalPeriod)
+        cleanedList = [
+            [
+                [
+                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%H')),
+                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%M')),
+                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%S'))
+                ]
+                , macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))
+            ] for j in range(len(macd))
                        if not math.isnan(macd[j]) or not math.isnan(macdsignal[j]) ]
         print(cleanedList)
 
