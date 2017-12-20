@@ -34,7 +34,7 @@ try:
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT closer from tkmcandlesticks"
+    sqlSelect = "SELECT id, high, low, closer from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,11 +44,15 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([row[0] for row in initialData])
-        # print (close)
-        output = talib.SMA(close, timePeriod)
-        cleanedList = [[i, output[i]] for i in range(len(output)) if not math.isnan(output[i])]
+        close = numpy.array([item[3] for item in initialData])
+        high = numpy.array([item[1] for item in initialData])
+        low = numpy.array([item[2] for item in initialData])
+        # fiveMinuteCalc = numpy.array([close[j] for j in range(len(close)) if j % 5 == 0])
+        slowk, slowd = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
+        # outputSMA = talib.SMA(close, 14)
+        cleanedList = [[j, slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))] for j in range(len(slowk)) if not math.isnan(slowk[j]) or not math.isnan(slowd[j]) ]
         print(cleanedList)
+
+
 except Exception as e:
-    print("Uh oh, you done fucked up - ")
-    print(e)
+    print("Uh oh, you done fucked up: %s" % (e))

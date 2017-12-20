@@ -33,8 +33,10 @@ try:
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
-    timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT closer from tkmcandlesticks"
+    fastPeriod = int(sys.argv[5])
+    slowPeriod = int(sys.argv[6])
+    signalPeriod = int(sys.argv[7])
+    sqlSelect = "SELECT id, closer from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,11 +46,12 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([row[0] for row in initialData])
-        # print (close)
-        output = talib.SMA(close, timePeriod)
-        cleanedList = [[i, output[i]] for i in range(len(output)) if not math.isnan(output[i])]
+        close = numpy.array([item[1] for item in initialData])
+        # fiveMinuteCalc = numpy.array([close[j] for j in range(len(close)) if j % 5 == 0])
+        macd, macdsignal, macdhist = talib.MACD(close, fastperiod=fastPeriod, slowperiod=slowPeriod, signalperiod=signalPeriod)
+        cleanedList = [[j, macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))] for j in range(len(macd))
+                       if not math.isnan(macd[j]) or not math.isnan(macdsignal[j]) ]
         print(cleanedList)
+
 except Exception as e:
-    print("Uh oh, you done fucked up - ")
-    print(e)
+    print("Uh oh, you done fucked up: %s" % (e))
