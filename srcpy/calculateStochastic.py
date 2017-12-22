@@ -51,12 +51,7 @@ try:
         slowk, slowd = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         cleanedList = [
             [
-                [
-                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%H')),
-                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%M')),
-                    int(datetime.fromtimestamp(int(timestamp[j])).strftime('%S'))
-                ]
-                , slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))
+                timestamp[j] , slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))
             ] for j in range(len(slowk)) if not math.isnan(slowk[j]) or not math.isnan(slowd[j]) ]
         print(cleanedList)
 

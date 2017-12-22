@@ -50,12 +50,7 @@ try:
         outputRSI = talib.RSI(listForRSI, timePeriod)
         cleanedList = [
             [
-                [
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%H')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%M')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%S'))
-                ]
-                , outputRSI[k], str("RSI: %s"%(outputRSI[k]))
+                intervalCalc[k][1], outputRSI[k], str("RSI: %s"%(outputRSI[k]))
             ] for k in range(len(outputRSI)) if not math.isnan(outputRSI[k])]
         print(cleanedList)
 

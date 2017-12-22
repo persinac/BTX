@@ -49,12 +49,7 @@ try:
         output = talib.SMA(listForSMA, timePeriod)
         cleanedList = [
             [
-                [
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%H')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%M')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%S'))
-                ]
-                           , output[k]
+                intervalCalc[k][1], output[k]
             ] for k in range(len(output)) if not math.isnan(output[k])]
         print(cleanedList)
 except Exception as e:
