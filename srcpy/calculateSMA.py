@@ -29,6 +29,7 @@ try:
         , user=params['pgsql']['user']
         , password=params['pgsql']['password']
     )
+    test = 123
     currMarket = sys.argv[1]
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
