@@ -11,3 +11,7 @@ define('FILL_TYPE_FILL', 1);
 define('FILL_TYPE_PARTIAL', 2);
 define('ORDER_TYPE_BUY', 1);
 define('ORDER_TYPE_SELL',  2);
+define('API_DATA_STORAGE_BASE', '/mnt/volume-nyc3-02-part1/APIDataStorage/');
+define('API_DATA_GET_COIN_HEADER_DIRECTORY', 'BTXGetCoinHeader/');
+define('API_DATA_GET_MARKET_SUMMARIES_DIRECTORY', 'BTXGetMarketSummaries/');
+define('API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY', 'BTXGetMarketSummaryDetails/');

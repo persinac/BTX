@@ -34,7 +34,7 @@ try:
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
+    sqlSelect = "SELECT id, high, low, closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,14 +44,17 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        intervalCalc = numpy.array([[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
-        listForSMA = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
-        output = talib.SMA(listForSMA, timePeriod)
+        close = numpy.array([initialData[a][3] for a in range(len(initialData)) if a % interval == 0])
+        high = numpy.array([initialData[b][1] for b in range(len(initialData)) if b % interval == 0])
+        low = numpy.array([initialData[c][2] for c in range(len(initialData)) if c % interval == 0])
+        timestamp = [initialData[d][4] for d in range(len(initialData)) if d % interval == 0]
+        slowk, slowd = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         cleanedList = [
             [
-                intervalCalc[k][1], output[k]
-            ] for k in range(len(output)) if not math.isnan(output[k])]
+                timestamp[j] , slowk[j], slowd[j], str("SlowK: %s | SlowD: %s"%(slowk[j], slowd[j]))
+            ] for j in range(len(slowk)) if not math.isnan(slowk[j]) or not math.isnan(slowd[j]) ]
         print(cleanedList)
+
+
 except Exception as e:
-    print("Uh oh, you done fucked up - ")
-    print(e)
+    print("Uh oh, you done fucked up: %s" % (e))

@@ -33,7 +33,9 @@ try:
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
-    timePeriod = int(sys.argv[5])
+    fastPeriod = int(sys.argv[5])
+    slowPeriod = int(sys.argv[6])
+    signalPeriod = int(sys.argv[7])
     sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
@@ -44,14 +46,16 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        intervalCalc = numpy.array([[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
-        listForSMA = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
-        output = talib.SMA(listForSMA, timePeriod)
+        intervalCalc = numpy.array(
+            [[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
+        listForMACD = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
+        macd, macdsignal, macdhist = talib.MACD(listForMACD, fastperiod=fastPeriod, slowperiod=slowPeriod, signalperiod=signalPeriod)
         cleanedList = [
             [
-                intervalCalc[k][1], output[k]
-            ] for k in range(len(output)) if not math.isnan(output[k])]
+                intervalCalc[j][1], macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))
+            ] for j in range(len(macd))
+                       if not math.isnan(macd[j]) or not math.isnan(macdsignal[j]) ]
         print(cleanedList)
+
 except Exception as e:
-    print("Uh oh, you done fucked up - ")
-    print(e)
+    print("Uh oh, you done fucked up: %s" % (e))

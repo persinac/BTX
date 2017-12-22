@@ -2,15 +2,150 @@
  * Created by apersinger on 4/23/2017.
  */
 
-function BuildHomePage() {
-    var response = "<h3>Starting...</h3>";
-    $("#dyn_content").html(response);
+function BuildHomePage(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    BuildSMA(optionalParams);
+    BuildRSI(optionalParams);
+    BuildStochastics(optionalParams);
+    BuildMACD(optionalParams);
+    // $.ajax({
+    //     type: "GET",
+    //     url: "/src/api/get/getCalculatedSMA.php",
+    //     dataType: "json",
+    //     data: {
+    //         market: "BTC"
+    //         , coin: "ETH"},
+    //     success: function(response) {
+    //         console.log(response);
+    //         drawBasic(response);
+    //         drawBasicRSI(response);
+    //         // $("#dyn_content").html(response);
+    //     }
+    // });
+}
+
+function BuildFilters(optionalParams) {
+    var market = optionalParams.market || "BTC";
     $.ajax({
         type: "GET",
-        url: "/CRUD/general/bittrexAccountInfo.php",
+        url: "/src/buildCoinMarketDropdown.php",
+        dataType: "json",
         success: function(response) {
-            //console.log(response);
-            $("#dyn_content").html(response);
+            console.log(response);
+            // $("#filters_markets").html(response['markets']);
+            if(market == "BTC") {
+                $("#filters_coins").html(response['coinMarkets'][1]['coins']);
+            } else {
+                $("#filters_coins").html(response['coinMarkets'][0]['coins']);
+            }
+
+        }
+    });
+}
+
+function BuildSMA(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    $.ajax({
+        type: "GET",
+        url: "/src/api/get/getCalculatedSMA.php",
+        dataType: "json",
+        data: {
+            market: market
+            , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
+        },
+        success: function(response) {
+            console.log(response);
+            $("#sma_loading").attr('src',"");
+            drawBasic(response);
+            // $("#dyn_content").html(response);
+        }
+    });
+}
+
+function BuildRSI(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    $.ajax({
+        type: "GET",
+        url: "/src/api/get/getCalculatedRSI.php",
+        dataType: "json",
+        data: {
+            market: market
+            , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
+        },
+        success: function(response) {
+            console.log(response);
+            drawBasicRSI(response);
+            // $("#dyn_content_rsi").html(response);
+        }
+    });
+}
+
+function BuildStochastics(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    $.ajax({
+        type: "GET",
+        url: "/src/api/get/getCalculatedStochastic.php",
+        dataType: "json",
+        data: {
+            market: market
+            , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
+        },
+        success: function(response) {
+            console.log("STOCHASTICS: ");
+            console.log(response);
+            drawBasicStochastic(response);
+            // $("#dyn_content_rsi").html(response);
+        }
+    });
+}
+
+function BuildMACD(optionalParams) {
+    var market = optionalParams.market || "BTC";
+    var coin = optionalParams.coin || "ETH";
+    var interval = optionalParams.interval || 1;
+    var limit = optionalParams.limit || 100;
+    var timePeriod = optionalParams.timePeriod || 14;
+    $.ajax({
+        type: "GET",
+        url: "/src/api/get/getCalculatedMACD.php",
+        dataType: "json",
+        data: {
+            market: market
+            , coin: coin
+            , interval: interval
+            , limit: limit
+            , timePeriod: timePeriod
+        },
+        success: function(response) {
+            console.log("MACD: ");
+            console.log(response);
+            drawBasicMACD(response);
+            // $("#dyn_content_rsi").html(response);
         }
     });
 }
@@ -233,4 +368,125 @@ function DisplayCurrentCronJobList() {
             console.log(response);
         }
     });
+}
+
+function drawBasic(myData) {
+
+    var data = new google.visualization.DataTable();
+    data.addColumn('timeofday', 'X');
+    data.addColumn('number', 'SMA');
+    // A column for custom tooltip content
+    //data.addColumn({type: 'string', role: 'tooltip'});
+    data.addRows(myData);
+
+    var options = {
+        hAxis: {
+            title: 'Time'
+        },
+        vAxis: {
+            0:{title: 'SMA'}
+        },
+        series: {
+            0: {targetAxisIndex:0}
+        },
+        annotations: {
+            textStyle: {
+                fontName: 'Times-Roman',
+                fontSize: 18,
+                bold: true,
+                italic: true,
+                // The color of the text.
+                color: '#871b47',
+                // The color of the text outline.
+                auraColor: '#d799ae',
+                // The transparency of the text.
+                opacity: 0.8
+            }
+        }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_sma'));
+
+    chart.draw(data, options);
+}
+
+function drawBasicRSI(myData) {
+    var data = new google.visualization.DataTable();
+    data.addColumn('timeofday', 'X');
+    data.addColumn('number', 'RSI');
+    // A column for custom tooltip content
+    data.addColumn({type: 'string', role: 'tooltip'});
+    data.addRows(myData);
+
+    var options = {
+        hAxis: {
+            title: 'Time'
+        },
+        vAxis: {
+            0:{title: 'RSI'}
+        },
+        series: {
+            0: {targetAxisIndex:0}
+        }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_rsi'));
+
+    chart.draw(data, options);
+}
+
+function drawBasicStochastic(myData) {
+    var data = new google.visualization.DataTable();
+    data.addColumn('timeofday', 'X');
+    data.addColumn('number', 'SlowK');
+    data.addColumn('number', 'SlowD');
+    // A column for custom tooltip content
+    data.addColumn({type: 'string', role: 'tooltip'});
+    data.addRows(myData);
+
+    var options = {
+        hAxis: {
+            title: 'Time'
+        },
+        vAxis: {
+            0:{title: 'Value - SlowK'},
+            1:{title: 'Value - SlowD'}
+        },
+        series: {
+            0: {targetAxisIndex:0},
+            1: {targetAxisIndex:1}
+        }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_stoch'));
+
+    chart.draw(data, options);
+}
+
+function drawBasicMACD(myData) {
+    var data = new google.visualization.DataTable();
+    data.addColumn('timeofday', 'X');
+    data.addColumn('number', 'MACD');
+    data.addColumn('number', 'Signal');
+    // A column for custom tooltip content
+    data.addColumn({type: 'string', role: 'tooltip'});
+    data.addRows(myData);
+
+    var options = {
+        hAxis: {
+            title: 'Time'
+        },
+        vAxis: {
+            0:{title: 'MACD'},
+            1:{title: 'Signal'}
+        },
+        series: {
+            0: {targetAxisIndex:0},
+            1: {targetAxisIndex:1}
+        }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_macd'));
+
+    chart.draw(data, options);
 }

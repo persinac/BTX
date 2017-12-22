@@ -31,8 +31,10 @@ curl_close($ch);
 
 /* encoded values for all market data */
 $encodedJSON = json_decode($result);
-
+$apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_COIN_HEADER_DIRECTORY;
+$apiFileDataVerifyName .= date('Y_m_d_H:i:s');
 if($encodedJSON->success) {
+    $apiFileDataVerifyName .= "___SUCCESS";
     $listOfHeaders = array();
     $listOfHeadersToUpdate = array();
     /*
@@ -108,15 +110,22 @@ if($encodedJSON->success) {
     $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfHeaders, BTX_TBL_COIN_HEADER);
     if($numOfInserts > 0) {
         $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_HEADER[0]);
-        echo date('Y-m-d H:i:s') . " | " . $retVal . "\n";
+        $retValToEcho = date('Y-m-d H:i:s') . " | " . $retVal . "\n";
     } else if ($numOfUpdates > 0) {
         /* TODO
             Create an update
          */
-        echo date('Y-m-d H:i:s') . " | Need to update $numOfUpdates row(s)\n";
+        $retValToEcho = date('Y-m-d H:i:s') . " | Need to update $numOfUpdates row(s)\n";
     } else {
-        echo date('Y-m-d H:i:s') . " | No inserts or updates executed\n";
+        $retValToEcho = date('Y-m-d H:i:s') . " | No inserts or updates executed\n";
     }
 } else {
-    echo date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed\n";
+    $apiFileDataVerifyName .= "___FAIL";
+    $retValToEcho = date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed\n";
 }
+
+$apiFileDataVerifyName .= ".json";
+$fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing
+$fileData = json_encode($encodedJSON->result) . "\n" . $retValToEcho;
+fwrite($fileHandler, $fileData);
+echo $retValToEcho;
