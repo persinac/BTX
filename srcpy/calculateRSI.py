@@ -34,7 +34,7 @@ try:
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT id, closer from tkmcandlesticks"
+    sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,10 +44,19 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([item[1] for item in initialData])
-        # fiveMinuteCalc = numpy.array([close[j] for j in range(len(close)) if j % 5 == 0])
-        outputRSI = talib.RSI(close, timePeriod)
-        cleanedList = [[j, outputRSI[j], str("RSI: %s"%(outputRSI[j]))] for j in range(len(outputRSI)) if not math.isnan(outputRSI[j])]
+        intervalCalc = numpy.array(
+            [[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
+        listForRSI = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
+        outputRSI = talib.RSI(listForRSI, timePeriod)
+        cleanedList = [
+            [
+                [
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%H')),
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%M')),
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%S'))
+                ]
+                , outputRSI[k], str("RSI: %s"%(outputRSI[k]))
+            ] for k in range(len(outputRSI)) if not math.isnan(outputRSI[k])]
         print(cleanedList)
 
 except Exception as e:

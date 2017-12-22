@@ -34,7 +34,7 @@ try:
     limit = int(sys.argv[3])
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT closer from tkmcandlesticks"
+    sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
     sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
     sqlOrder = "ORDER BY timestampintervallow DESC"
     sqlLimit = "LIMIT %s" % (limit)
@@ -44,10 +44,18 @@ try:
     rows = cursor.fetchall()
     if len(rows) > 0:
         initialData = rows[::-1]
-        close = numpy.array([row[0] for row in initialData])
-        # print (close)
-        output = talib.SMA(close, timePeriod)
-        cleanedList = [[i, output[i]] for i in range(len(output)) if not math.isnan(output[i])]
+        intervalCalc = numpy.array([[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
+        listForSMA = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
+        output = talib.SMA(listForSMA, timePeriod)
+        cleanedList = [
+            [
+                [
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%H')),
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%M')),
+                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%S'))
+                ]
+                           , output[k]
+            ] for k in range(len(output)) if not math.isnan(output[k])]
         print(cleanedList)
 except Exception as e:
     print("Uh oh, you done fucked up - ")
