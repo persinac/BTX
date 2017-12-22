@@ -123,12 +123,13 @@ foreach ($listOfObjs as $item) {
     $retValToEcho .= "(" . $item->createCommaDelimitedValueForInsert() . "),";
 }
 
-$apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY;
-$apiFileDataVerifyName .= date('Y_m_d_H:i:s') . "-". $searchNum;
-$apiFileDataVerifyName .= ".json";
-$fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing
-$fileData = json_encode($dataArr);
-fwrite($fileHandler, $fileData);
-
+if(!empty($searchNum)) {
+    $apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY;
+    $apiFileDataVerifyName .= date('Y_m_d_H:i:s') . "-" . $searchNum;
+    $apiFileDataVerifyName .= ".json";
+    $fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  ' . $apiFileDataVerifyName); //open file for writing
+    $fileData = json_encode($dataArr);
+    fwrite($fileHandler, $fileData);
+}
 echo $retValToEcho;
 
