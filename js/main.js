@@ -371,122 +371,219 @@ function DisplayCurrentCronJobList() {
 }
 
 function drawBasic(myData) {
+    if(myData !== undefined) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'X');
+        data.addColumn('number', 'SMA');
+        // A column for custom tooltip content
+        //data.addColumn({type: 'string', role: 'tooltip'});
+        // var rows;
+        var lowDate = new Date(myData[0][0] * 1000);
+        var highDate = new Date(myData[myData.length-1][0] * 1000);
+        $(myData).each(function (index) {
+            // console.log("SMA Idx: " + index + " @ idx: " + myData[index] + " Date: " + new Date(myData[index][0]*1000));
+            data.addRows([[new Date(myData[index][0] * 1000), myData[index][1]]])
+        });
 
-    var data = new google.visualization.DataTable();
-    data.addColumn('timeofday', 'X');
-    data.addColumn('number', 'SMA');
-    // A column for custom tooltip content
-    //data.addColumn({type: 'string', role: 'tooltip'});
-    data.addRows(myData);
-
-    var options = {
-        hAxis: {
-            title: 'Time'
-        },
-        vAxis: {
-            0:{title: 'SMA'}
-        },
-        series: {
-            0: {targetAxisIndex:0}
-        },
-        annotations: {
-            textStyle: {
-                fontName: 'Times-Roman',
-                fontSize: 18,
-                bold: true,
-                italic: true,
-                // The color of the text.
-                color: '#871b47',
-                // The color of the text outline.
-                auraColor: '#d799ae',
-                // The transparency of the text.
-                opacity: 0.8
+        var options = {
+            hAxis: {
+                title: 'Time',
+                viewWindow: {
+                    min: lowDate,
+                    max: highDate
+                },
+                gridlines: {
+                    count: -1,
+                    units: {
+                        days: {format: ['MMM dd']},
+                        hours: {format: ['HH:mm', 'ha']},
+                    }
+                },
+                minorGridlines: {
+                    units: {
+                        hours: {format: ['hh:mm:ss a', 'ha']},
+                        minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                }
+            },
+            vAxis: {
+                0: {title: 'SMA'}
+            },
+            series: {
+                0: {targetAxisIndex: 0}
+            },
+            annotations: {
+                textStyle: {
+                    fontName: 'Times-Roman',
+                    fontSize: 18,
+                    bold: true,
+                    italic: true,
+                    // The color of the text.
+                    color: '#871b47',
+                    // The color of the text outline.
+                    auraColor: '#d799ae',
+                    // The transparency of the text.
+                    opacity: 0.8
+                }
             }
-        }
-    };
+        };
 
-    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_sma'));
+        var chart = new google.visualization.LineChart(document.getElementById('dyn_content_sma'));
 
-    chart.draw(data, options);
+        chart.draw(data, options);
+    }
 }
 
 function drawBasicRSI(myData) {
-    var data = new google.visualization.DataTable();
-    data.addColumn('timeofday', 'X');
-    data.addColumn('number', 'RSI');
-    // A column for custom tooltip content
-    data.addColumn({type: 'string', role: 'tooltip'});
-    data.addRows(myData);
+    if(myData !== undefined) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'X');
+        data.addColumn('number', 'RSI');
+        // A column for custom tooltip content
+        data.addColumn({type: 'string', role: 'tooltip'});
 
-    var options = {
-        hAxis: {
-            title: 'Time'
-        },
-        vAxis: {
-            0:{title: 'RSI'}
-        },
-        series: {
-            0: {targetAxisIndex:0}
-        }
-    };
+        var lowDate = new Date(myData[0][0] * 1000);
+        var highDate = new Date(myData[myData.length-1][0] * 1000);
+        $(myData).each(function(index) {
+            var newDate = new Date(myData[index][0] * 1000);
+            data.addRows([[newDate, myData[index][1], myData[index][2]]])
+        });
 
-    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_rsi'));
+        var options = {
+            hAxis: {
+                title: 'Time',
+                viewWindow: {
+                    min: lowDate,
+                    max: highDate
+                },
+                gridlines: {
+                    count: -1,
+                    units: {
+                        days: {format: ['MMM dd']},
+                        hours: {format: ['HH:mm', 'ha']},
+                    }
+                },
+                minorGridlines: {
+                    units: {
+                        hours: {format: ['hh:mm:ss a', 'ha']},
+                        minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                }
+            },
+            vAxis: {
+                0:{title: 'RSI'}
+            },
+            series: {
+                0: {targetAxisIndex:0}
+            }
+        };
 
-    chart.draw(data, options);
+        var chart = new google.visualization.LineChart(document.getElementById('dyn_content_rsi'));
+        chart.draw(data, options);
+    }
 }
 
 function drawBasicStochastic(myData) {
-    var data = new google.visualization.DataTable();
-    data.addColumn('timeofday', 'X');
-    data.addColumn('number', 'SlowK');
-    data.addColumn('number', 'SlowD');
-    // A column for custom tooltip content
-    data.addColumn({type: 'string', role: 'tooltip'});
-    data.addRows(myData);
+    if(myData !== undefined) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'X');
+        data.addColumn('number', 'SlowK');
+        data.addColumn('number', 'SlowD');
+        // A column for custom tooltip content
+        data.addColumn({type: 'string', role: 'tooltip'});
+        // data.addRows(myData);
+        var lowDate = new Date(myData[0][0] * 1000);
+        var highDate = new Date(myData[myData.length-1][0] * 1000);
+        $(myData).each(function(index) {
+            var newDate = new Date(myData[index][0] * 1000);
+            data.addRows([[newDate, myData[index][1], myData[index][2], myData[index][3]]])
+        });
 
-    var options = {
-        hAxis: {
-            title: 'Time'
-        },
-        vAxis: {
-            0:{title: 'Value - SlowK'},
-            1:{title: 'Value - SlowD'}
-        },
-        series: {
-            0: {targetAxisIndex:0},
-            1: {targetAxisIndex:1}
-        }
-    };
+        var options = {
+            hAxis: {
+                title: 'Time',
+                viewWindow: {
+                    min: lowDate,
+                    max: highDate
+                },
+                gridlines: {
+                    count: -1,
+                    units: {
+                        days: {format: ['MMM dd']},
+                        hours: {format: ['HH:mm', 'ha']},
+                    }
+                },
+                minorGridlines: {
+                    units: {
+                        hours: {format: ['hh:mm:ss a', 'ha']},
+                        minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                }
+            },
+            vAxis: {
+                0: {title: 'Value - SlowK'},
+                1: {title: 'Value - SlowD'}
+            },
+            series: {
+                0: {targetAxisIndex: 0},
+                1: {targetAxisIndex: 1}
+            }
+        };
 
-    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_stoch'));
+        var chart = new google.visualization.LineChart(document.getElementById('dyn_content_stoch'));
 
-    chart.draw(data, options);
+        chart.draw(data, options);
+    }
 }
 
 function drawBasicMACD(myData) {
-    var data = new google.visualization.DataTable();
-    data.addColumn('timeofday', 'X');
-    data.addColumn('number', 'MACD');
-    data.addColumn('number', 'Signal');
-    // A column for custom tooltip content
-    data.addColumn({type: 'string', role: 'tooltip'});
-    data.addRows(myData);
+    if(myData !== undefined) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('date', 'X');
+        data.addColumn('number', 'MACD');
+        data.addColumn('number', 'Signal');
+        // A column for custom tooltip content
+        data.addColumn({type: 'string', role: 'tooltip'});
+        var lowDate = new Date(myData[0][0] * 1000);
+        var highDate = new Date(myData[myData.length-1][0] * 1000);
+        $(myData).each(function(index) {
+            var newDate = new Date(myData[index][0] * 1000);
+            data.addRows([[newDate, myData[index][1], myData[index][2], myData[index][3]]])
+        });
 
-    var options = {
-        hAxis: {
-            title: 'Time'
-        },
-        vAxis: {
-            0:{title: 'MACD'},
-            1:{title: 'Signal'}
-        },
-        series: {
-            0: {targetAxisIndex:0},
-            1: {targetAxisIndex:1}
-        }
-    };
+        var options = {
+            hAxis: {
+                title: 'Time',
+                viewWindow: {
+                    min: lowDate,
+                    max: highDate
+                },
+                gridlines: {
+                    count: -1,
+                    units: {
+                        days: {format: ['MMM dd']},
+                        hours: {format: ['HH:mm', 'ha']},
+                    }
+                },
+                minorGridlines: {
+                    units: {
+                        hours: {format: ['hh:mm:ss a', 'ha']},
+                        minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                }
+            },
+            vAxis: {
+                0: {title: 'MACD'},
+                1: {title: 'Signal'}
+            },
+            series: {
+                0: {targetAxisIndex: 0},
+                1: {targetAxisIndex: 1}
+            }
+        };
 
-    var chart = new google.visualization.LineChart(document.getElementById('dyn_content_macd'));
+        var chart = new google.visualization.LineChart(document.getElementById('dyn_content_macd'));
 
-    chart.draw(data, options);
+        chart.draw(data, options);
+    }
 }

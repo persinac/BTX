@@ -107,8 +107,22 @@ $marketDropdown .= "</select>";
                 </div>
             </div>
             <div class="row">
+                <div class="col-lg-4" id="spacer_1"></div>
+                <div class="col-lg-4" id="spacer_2"></div>
                 <div class="col-lg-4" id="refresh">
                     <button type="button" id="refresh_data" class="btn btn-primary margin_10_px">Refresh Data</button>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-4" id="coin_picture">
+
+                </div>
+                <div class="col-lg-4" id="coin_curr_data">
+
+                </div>
+                <div class="col-lg-4" id="coin_historical_data">
+
                 </div>
 
             </div>
@@ -142,6 +156,7 @@ $marketDropdown .= "</select>";
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/<?php echo BOOTSTRAP_VERSION; ?>/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 <script src="/js/main.js"></script>
+<script src="/js/btx_main.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
     google.charts.load('current', {'packages':['corechart']});
@@ -179,6 +194,7 @@ $marketDropdown .= "</select>";
         };
         BuildFilters(params);
         BuildHomePage(params);
+        GetCoinData(params);
         $("#home a").click(function() {
             // BuildHomePage();
             $("#employeeList").removeClass("active");
@@ -222,6 +238,7 @@ $marketDropdown .= "</select>";
                 "interval": $("#filters_intervals").find(":selected").attr("value")
             };
             BuildHomePage(params);
+            GetCoinData(params);
         });
 
         $('#dyn_content').delegate('table#employee tr td a.details', 'click', function() {
@@ -258,6 +275,7 @@ $marketDropdown .= "</select>";
             };
             console.log(params);
             BuildFilters(params);
+            GetCoinData(params);
             // BuildHomePage(params);
         });
 
@@ -272,6 +290,7 @@ $marketDropdown .= "</select>";
                 "interval": $("#filters_intervals").find(":selected").attr("value")
             };
             BuildHomePage(params);
+            GetCoinData(params);
         });
 
         $('#dyn_content').on('change', '#filters_intervals', function(){
@@ -285,6 +304,7 @@ $marketDropdown .= "</select>";
                 "interval": $("#filters_intervals").find(":selected").attr("value")
             };
             BuildHomePage(params);
+            GetCoinData(params);
         });
 
         $('#dyn_content').delegate('ul li a', 'click', function() {
