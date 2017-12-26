@@ -29,6 +29,7 @@ try:
         , user=params['pgsql']['user']
         , password=params['pgsql']['password']
     )
+    test = 123
     currMarket = sys.argv[1]
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
@@ -49,12 +50,7 @@ try:
         output = talib.SMA(listForSMA, timePeriod)
         cleanedList = [
             [
-                [
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%H')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%M')),
-                    int(datetime.fromtimestamp(int(intervalCalc[k][1])).strftime('%S'))
-                ]
-                           , output[k]
+                intervalCalc[k][1], output[k]
             ] for k in range(len(output)) if not math.isnan(output[k])]
         print(cleanedList)
 except Exception as e:

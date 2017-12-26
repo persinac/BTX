@@ -52,12 +52,7 @@ try:
         macd, macdsignal, macdhist = talib.MACD(listForMACD, fastperiod=fastPeriod, slowperiod=slowPeriod, signalperiod=signalPeriod)
         cleanedList = [
             [
-                [
-                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%H')),
-                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%M')),
-                    int(datetime.fromtimestamp(int(intervalCalc[j][1])).strftime('%S'))
-                ]
-                , macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))
+                intervalCalc[j][1], macd[j], macdsignal[j], str("SlowK: %s | SlowD: %s"%(macd[j], macdsignal[j]))
             ] for j in range(len(macd))
                        if not math.isnan(macd[j]) or not math.isnan(macdsignal[j]) ]
         print(cleanedList)
