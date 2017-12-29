@@ -8,7 +8,7 @@ CREATE TABLE public.btxhistoryref
     CONSTRAINT btx_historyref_id_pk PRIMARY KEY (id)
 )
 WITH (
-    OIDS = FALSEd
+    OIDS = FALSE
 )
 TABLESPACE pg_default;
 
