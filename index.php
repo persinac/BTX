@@ -1,6 +1,22 @@
 <?php
 
-require_once("config/settings.php");
+require_once("src/settings.php");
+$intervalDropdown = "";
+$intervalDropdown .= "<select id='interval'>";
+$intervalDropdown .= '<option value="1">1 Min</option>';
+$intervalDropdown .= '<option value="2">2 Min</option>';
+$intervalDropdown .= '<option value="5">5 Min</option>';
+$intervalDropdown .= '<option value="15">15 Min</option>';
+$intervalDropdown .= '<option value="30">30 Min</option>';
+$intervalDropdown .= '<option value="60">1 Hr</option>';
+//$intervalDropdown .= '<option value="2">USDT</option>';
+$intervalDropdown .= "</select>";
+
+$marketDropdown = "";
+$marketDropdown .= "<select>";
+$marketDropdown .= '<option value="BTC">BTC</option>';
+$marketDropdown .= '<option value="USDT">USDT</option>';
+$marketDropdown .= "</select>";
 
 /**
  * Created by PhpStorm.
@@ -32,10 +48,10 @@ require_once("config/settings.php");
     -->
 
     <!-- Custom styles for this template -->
-    <link href="/dist/css/general.css" rel="stylesheet">
-    <link href="/dist/css/main.css" rel="stylesheet">
-    <link href="/dist/css/tables.css" rel="stylesheet">
-    <link href="/dist/css/actions.css" rel="stylesheet">
+    <link href="/css/general.css" rel="stylesheet">
+    <link href="/css/main.css" rel="stylesheet">
+    <link href="/css/tables.css" rel="stylesheet">
+    <link href="/css/actions.css" rel="stylesheet">
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/<?php echo BOOTSTRAP_VERSION; ?>/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
@@ -46,6 +62,8 @@ require_once("config/settings.php");
     <!--[if lt IE 9]>
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
+
     <![endif]-->
 </head>
 
@@ -60,12 +78,12 @@ require_once("config/settings.php");
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">Blog Scheduler</a>
+            <a class="navbar-brand" href="#">BTX</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
                 <li id="home" class="active"><a href="#">Home</a></li>
-                <li id="employeeList"><a href="#employeeList">Employee List</a></li>
+                <li id="employeeList"><a href="#employeeList">Tab2</a></li>
                 <li id="actions"><a href="#actions">Actions</a></li>
                 <li id="history"><a href="#history">History</a></li>
             </ul>
@@ -76,10 +94,57 @@ require_once("config/settings.php");
 <div class="container">
 
     <div class="starter-template">
-        <div class="dyn_content" id="dyn_content">
+        <div id="dyn_content">
+            <div class="row">
+                <div class="col-lg-4" id="filters_markets">
+                    <?php echo $marketDropdown; ?>
+                </div>
+                <div class="col-lg-4" id="filters_coins">
 
+                </div>
+                <div class="col-lg-4" id="filters_intervals">
+                    <?php echo $intervalDropdown; ?>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4" id="spacer_1"></div>
+                <div class="col-lg-4" id="spacer_2"></div>
+                <div class="col-lg-4" id="refresh">
+                    <button type="button" id="refresh_data" class="btn btn-primary margin_10_px">Refresh Data</button>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-lg-4" id="coin_picture">
+
+                </div>
+                <div class="col-lg-4" id="coin_curr_data">
+
+                </div>
+                <div class="col-lg-4" id="coin_historical_data">
+
+                </div>
+
+            </div>
+        <div class="row">
+            <div class="col-lg-6" id="value">
+
+            </div>
+            <div class="col-lg-6" id="value2">
+
+            </div>
         </div>
-
+        <div class="row">
+            <div class="col-lg-6" id="dyn_content_sma" style="height:300px">
+                <img id="sma_loading" src="" />
+            </div>
+            <div class="col-lg-6" id="dyn_content_rsi" style="height:300px"></div>
+        </div>
+        <div class="row">
+            <div class="col-lg-6" id="dyn_content_stoch" style="height:300px"></div>
+            <div class="col-lg-6" id="dyn_content_macd" style="height:300px"></div>
+        </div>
+        </div>
     </div>
 </div><!-- /.container -->
 
@@ -90,8 +155,13 @@ require_once("config/settings.php");
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <!-- Latest compiled and minified JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/<?php echo BOOTSTRAP_VERSION; ?>/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="/dist/js/main.js"></script>
+<script src="/js/main.js"></script>
+<script src="/js/btx_main.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawBasic);
+    google.charts.setOnLoadCallback(drawBasicRSI);
     // Wait for the page to load first
 //    window.onload = function() {
 //
@@ -113,8 +183,20 @@ require_once("config/settings.php");
 //        }
 //    }
     $(document).ready(function() {
+        $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+        $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+        $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+        $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+        var params = {
+            "market": "BTC",
+            "coin": "1ST",
+            "interval": $("#filters_intervals").find(":selected").attr("value")
+        };
+        BuildFilters(params);
+        BuildHomePage(params);
+        GetCoinData(params);
         $("#home a").click(function() {
-            BuildBlogListTable();
+            // BuildHomePage();
             $("#employeeList").removeClass("active");
             $("#home").addClass("active");
             $("#actions").removeClass("active");
@@ -122,7 +204,7 @@ require_once("config/settings.php");
         });
 
         $("#employeeList a").click(function() {
-            BuildEmployeeListTable();
+            // BuildEmployeeListTable();
             $("#employeeList").addClass("active");
             $("#home").removeClass("active");
             $("#actions").removeClass("active");
@@ -130,7 +212,7 @@ require_once("config/settings.php");
         });
 
         $("#actions a").click(function() {
-            BuildActionsPage();
+            // BuildActionsPage();
             $("#employeeList").removeClass("active");
             $("#home").removeClass("active");
             $("#actions").addClass("active");
@@ -138,11 +220,25 @@ require_once("config/settings.php");
         });
 
         $("#history a").click(function() {
-            DisplayHistory("dyn_content");
+            // DisplayHistory("dyn_content");
             $("#employeeList").removeClass("active");
             $("#home").removeClass("active");
             $("#actions").removeClass("active");
             $("#history").addClass("active");
+        });
+
+        $("#refresh_data").click(function() {
+            $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
+            GetCoinData(params);
         });
 
         $('#dyn_content').delegate('table#employee tr td a.details', 'click', function() {
@@ -161,16 +257,63 @@ require_once("config/settings.php");
             BuildServiceAccountSetup()
         });
 
-        $('#dyn_content').delegate('#displayCronJobList', 'click', function() {
-            DisplayCurrentCronJobList()
+        $('#dyn_content').delegate('#filters_coins option', 'click', function() {
+            $("#value").html($(this))
+        });
+
+        $('#dyn_content').on('#filters_coins option', 'click', function() {
+            $("#value").html($(this))
+        });
+
+        $('#dyn_content').on('change', '#filters_markets', function(){
+            // $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            // $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text()
+            };
+            console.log(params);
+            BuildFilters(params);
+            GetCoinData(params);
+            // BuildHomePage(params);
+        });
+
+        $('#dyn_content').on('change', '#filters_coins', function(){
+            $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
+            GetCoinData(params);
+        });
+
+        $('#dyn_content').on('change', '#filters_intervals', function(){
+            $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            $("#dyn_content_macd").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
+            var params = {
+                "market": $("#filters_markets").find(":selected").text(),
+                "coin": $("#filters_coins").find(":selected").text(),
+                "interval": $("#filters_intervals").find(":selected").attr("value")
+            };
+            BuildHomePage(params);
+            GetCoinData(params);
         });
 
         $('#dyn_content').delegate('ul li a', 'click', function() {
             ListSelectorPlaceholder($(this));
         });
+        // BuildSMA();
 
     });
-    BuildBlogListTable()
+
 </script>
 </body>
 </html>

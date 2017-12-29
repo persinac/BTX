@@ -31,7 +31,7 @@ require_once $root . '/vendor/autoload.php';
 /* Create connection to PGSQL DB */
 $connection = new src\connections\PGSQLConnector();
 $btxFinder = new src\CRUD\read\BTXFinder($connection);
-$urlParams = parse_str($_SERVER['QUERY_STRING'], $output);
+parse_str($_SERVER['QUERY_STRING'], $output);
 
 //create a unique statement name for the pg_query
 $stmntName = "getbtxcoinheader_".date('U');
