@@ -33,6 +33,16 @@ if( ! $result = curl_exec($ch))
 }
 curl_close($ch);
 
+/*
+ * Need to call https://bittrex.com/api/v1.1/public/getmarkets
+ * to get the isActive status...
+ * If coin is active, continue,
+ * Else: write to history table why it's inactive. Should have a
+ * "notice" field in the ret val of curl.
+ *
+ * */
+
+
 /* Get USDT-BTC data for dollar value conversion */
 $btcUSDTParams=['market'=>'usdt-btc'];
 $btcUSDTOptions = array();
@@ -60,6 +70,24 @@ $encodedJSON = json_decode($result);
 $beginInsert = "INSERT INTO ".BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0]." " . BTX_TBL_COIN_MARKET_HISTORY_DETAILS[1] . " VALUES ";
 $valuesInsert = "";
 $btcUSDValue = 0.00;
+
+
+/* Create connection to PGSQL DB */
+$connection = new src\connections\PGSQLConnector();
+/* Create a "Keeper" Object that keeps our data, must pass connection info */
+$btxKeeper = new src\CRUD\create\BTXKeeper($connection);
+$btxFinder = new src\CRUD\read\BTXFinder($connection);
+/* init history list */
+$listOfHistoryObjs = array();
+$historyStmnt = "history_" . date('Y_m_d_H:i:s');
+/* get the current file and strip the extension */
+$currFile = substr(basename(__FILE__), 0, strpos(basename(__FILE__), "."));
+/* Find the history ref value for this file / type */
+$historyRefValue = $btxFinder->GetRefValuesForHistory(
+    $historyStmnt, "", HISTORY_REF_TYPE_CRON_JOB, "", $currFile
+);
+
+
 
 $numOfInserts = count($encodedJSON->result);
 if($btcUSDTjson->success) {
@@ -105,42 +133,68 @@ if($encodedJSON->success) {
     $usdtRetVal = "";
     $btcListRetVal = "";
     $implodedUSDTMarketCoins = implode(",", $listOfUSDTMarketCoins);
-    /* execute USDT market data script and let the cpu work on the BTC list */
-    if($searchInterval == 0) {
-        exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedUSDTMarketCoins USDT$searchInterval", $usdtRetVal);
-    }
-    $splitMod = 3;
-    $btcList = array();
-    for($i = 0; $i < count($listOfBTCMarketCoins); $i++) {
-        if($i % $splitMod == $searchInterval) {
-            $btcList[] = $listOfBTCMarketCoins[$i];
-        }
-    }
-    /* turn the btc split lists in strings */
-    $implodedbtcList = implode(",", $btcList);
-
-    /* Run the split lists asynchronously
-     * exec is read as follows:
-     * /usr/bin/php - Path to PHP to run the script
-     * /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php - relative path to the script
-     * BTC- > Search parameter
-     * $btcUSDValue > the current dollar value of BTC so that we don't have to query for it again
-     * $implodedbtcList___ > the list to parse and gather data from
-     */
-    exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcList $searchInterval", $btcListRetVal);
     $valuesInsert = "";
-    if($searchInterval == 0) {
+    /* execute USDT market data script and let the cpu work on the BTC list */
+    if($searchInterval < 0) {
+        $usdtRetVal = GetMarketSummaryDetailsThread(
+            "USDT-"
+            , $btcUSDValue
+            , $implodedUSDTMarketCoins
+            , "USDT"
+        );
+//        exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php USDT- $btcUSDValue $implodedUSDTMarketCoins USDT", $usdtRetVal);
         $valuesInsert .= $usdtRetVal[0];
+        $historyDescription = "Insert Market Summary Details: USDT Interval: " . $searchInterval;
+    } else {
+        $splitMod = 3;
+        $btcList = array();
+        for ($i = 0; $i < count($listOfBTCMarketCoins); $i++) {
+            if ($i % $splitMod == $searchInterval) {
+                $btcList[] = $listOfBTCMarketCoins[$i];
+            }
+        }
+        /* turn the btc split lists in strings */
+        $implodedbtcList = implode(",", $btcList);
+        /* Run the split lists asynchronously
+         * exec is read as follows:
+         * /usr/bin/php - Path to PHP to run the script
+         * /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php - relative path to the script
+         * BTC- > Search parameter
+         * $btcUSDValue > the current dollar value of BTC so that we don't have to query for it again
+         * $implodedbtcList___ > the list to parse and gather data from
+         */
+        $btcListRetVal = GetMarketSummaryDetailsThread(
+            "BTC-"
+            , $btcUSDValue
+            , $implodedbtcList
+            , $searchInterval
+        );
+
+//        exec("/usr/bin/php /var/www/html/src/cron/BTXGetMarketSummaryDetails_thread.php BTC- $btcUSDValue $implodedbtcList $searchInterval", $btcListRetVal);
+        $valuesInsert .= $btcListRetVal[0];
+        $historyDescription = "Insert Market Summary Details: BTC Interval: " . $searchInterval;
     }
-    $valuesInsert .= $btcListRetVal[0];
+
     $valuesInsert = substr($valuesInsert, 0, strlen($valuesInsert)-1);
     $numOfInserts = substr_count($valuesInsert,"),");
+
+    $market = "BTC";
+    if($searchInterval < 0) {
+        $market = "USDT";
+    }
+
+    /* Initialize BTXHistory obj */
+    $historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+        "SearchInterval-".$searchInterval
+        , $market
+        , $historyDescription
+        , $historyRefValue[0]['id']
+        , date('U')
+    );
+    $listOfHistoryObjs[] = $historyObj;
+
     $insertStmnt = $beginInsert . $valuesInsert;
     if(strlen($valuesInsert) > 5) {
-        /* Create connection to PGSQL DB */
-        $connection = new src\connections\PGSQLConnector();
-        /* Create a "Keeper" Object that keeps our data, must pass connection info */
-        $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
         /* Run the insert statement */
         $retVal = $btxKeeper->ExecuteInsertStatement($insertStmnt, $numOfInserts, BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0]);
     } else {
@@ -150,7 +204,24 @@ if($encodedJSON->success) {
     $dteStart = new DateTime($startTime);
     $dteEnd   = new DateTime($endTime);
     $dteDiff  = $dteStart->diff($dteEnd);
-    echo "Start-End Time: $startTime - " . date('Y-m-d H:i:s') . " | Time (seconds): " . $dteDiff->format("%S") . " | " . $retVal . "\n";
+    $retValToEcho = "Start-End Time: $startTime - " . date('Y-m-d H:i:s') . " | Time (seconds): " . $dteDiff->format("%S") . " | " . $retVal;
 } else {
-    echo "Start-End Time: $startTime - " . date('Y-m-d H:i:s') . " | Time (seconds): " . $dteDiff->format("%S") . " | CURL Call to bittrex API: public/getmarketsummary failed\n";
+    $retValToEcho =  "Start-End Time: $startTime - " . date('Y-m-d H:i:s') . " | Time (seconds): " . $dteDiff->format("%S") . " | CURL Call to bittrex API: public/getmarketsummary failed";
 }
+
+$numOfInserts = sizeof($listOfHistoryObjs);
+$retValToEcho .= " | File Complete - History wrote $numOfInserts to table (excluding this row)";
+
+/* Initialize final BTXHistory obj to capture end of file statement */
+$historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+    "ALL"
+    , "ALL"
+    , $retValToEcho
+    , $historyRefValue[0]['id']
+    , date('U')
+);
+$listOfHistoryObjs[] = $historyObj;
+/* Generate Insert statement - each object will have this method */
+$historyInsertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfHistoryObjs, BTX_TBL_HISTORY);
+//var_dump($historyInsertStmnt);
+$historyRetVal = $btxKeeper->ExecuteInsertStatement($historyInsertStmnt, $numOfInserts, BTX_TBL_HISTORY[0]);

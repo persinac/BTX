@@ -16,8 +16,8 @@ function GetCoinData(optionalParams) {
             var tempHTML = '<div></br> ' +
                 '<label for="price">Price: </label><span id="price"> '+jsonResponse.response[0].Price+' </span>' +
                 '</br><label for="qty">Quantity </label><span id="qty"> '+jsonResponse.response[0].Quantity+' </span>' +
-                '</br><label for="timestamp">Low: </label><span id="timestamp"> '+jsonResponse.response[2].high+' </span>' +
-                '</br><label for="timestamp">High: </label><span id="timestamp"> '+jsonResponse.response[2].low+' </span>' +
+                '</br><label for="timestamp">Low: </label><span id="timestamp"> '+jsonResponse.response[2].low+' </span>' +
+                '</br><label for="timestamp">High: </label><span id="timestamp"> '+jsonResponse.response[2].high+' </span>' +
                 '</br><label for="timestamp">Time: </label><span id="timestamp"> '+jsonResponse.response[0].TimeStamp+' </span>' +
                 '</div>';
 

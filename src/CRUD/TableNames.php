@@ -35,3 +35,19 @@ define('BTX_TBL_COIN_HEADER',
         "(id,coin,market,coinname,mintradesize,txfee,minconfirmation,isactive,btxtimestamp,timestamp,logourl)"
     )
 );
+
+define('BTX_TBL_HISTORY',
+    array(
+        'btxhistory',
+        "(coin,market,description,history_ref_key,timestamp)",
+        "(id,coin,market,description,history_ref_key,timestamp)"
+    )
+);
+
+define('BTX_TBL_HISTORY_REF',
+    array(
+        'btxhistoryref',
+        "(type,subtype,name,isactive)",
+        "(id,type,subtype,name,isactive)"
+    )
+);

@@ -29,6 +29,7 @@ class BTXMarketHistory
                          $usdValue, $high, $low, $lastSell, $currentBid,
                          $openBuyOrders, $openSellOrders, $btxTimestamp, $timestamp)
     {
+        $this->id = $id;
         $this->coin = $coin;
         $this->market = $market;
         $this->volume = $volume;

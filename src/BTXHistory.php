@@ -4,14 +4,18 @@
  * User: mike.cokingtin
  * Date: 12/14/17
  * Time: 6:27 PM
+ *
+ * Class to store overall summary of history events that the system performs
+ * Captures the following:
+ *  - CRON Job
+ *  - API calls
+ *  - TBD...
  */
 
 namespace src;
 
 class BTXHistory
 {
-
-  "timestamp" integer,
     private $id;
     private $coin;
     private $market;
@@ -19,10 +23,11 @@ class BTXHistory
     private $history_ref_key;
     private $timestamp;
 
-    function __construct($id = "", $coin, $market, $description, $value,
+    function __construct($id = "", $coin, $market, $description,
                          $history_ref_key, $timestamp)
 
     {
+        $this->id = $id;
         $this->coin = $coin;
         $this->market = $market;
         $this->description = $description;
@@ -35,7 +40,7 @@ class BTXHistory
     }
 
     public static function CreateNewBTXHistoryForInsert($coin = "", $market = "", $description = "", $history_ref_key = "", $timestamp = "") {
-        return new BTXMarketHistory("", $coin, $market, $description, $history_ref_key, $timestamp);
+        return new BTXHistory("", $coin, $market, $description, $history_ref_key, $timestamp);
     }
 
     /**
@@ -118,13 +123,15 @@ class BTXHistory
         $this->timestamp = $timestamp;
     }
 
-    public function createCommaDelimitedValueForInsert() {
+    public function createCommaDelimitedValueForInsert()
+    {
         $retVal = "";
         $retVal .= "'$this->coin'";
         $retVal .= ",'$this->market'";
-        $retVal .= ",". $this->description ."";
-        $retVal .= ",". $this->history_ref_key ."";
-        $retVal .= ",". $this->timestamp . "";
+        $retVal .= ",'" . $this->description . "'";
+        $retVal .= "," . $this->history_ref_key . "";
+        $retVal .= "," . $this->timestamp . "";
 
         return $retVal;
+    }
 }

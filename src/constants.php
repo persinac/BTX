@@ -15,3 +15,5 @@ define('API_DATA_STORAGE_BASE', '/mnt/volume-nyc3-02-part1/APIDataStorage/');
 define('API_DATA_GET_COIN_HEADER_DIRECTORY', 'BTXGetCoinHeader/');
 define('API_DATA_GET_MARKET_SUMMARIES_DIRECTORY', 'BTXGetMarketSummaries/');
 define('API_DATA_GET_MARKET_SUMMARY_DETAILS_DIRECTORY', 'BTXGetMarketSummaryDetails/');
+define('HISTORY_REF_TYPE_CRON_JOB', 'CRON Job');
+define('HISTORY_REF_TYPE_API_CALL', 'API Call');

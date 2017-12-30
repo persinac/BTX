@@ -29,6 +29,22 @@ if( ! $result = curl_exec($ch))
 }
 curl_close($ch);
 
+
+/* Create connection to PGSQL DB */
+$connection = new src\connections\PGSQLConnector();
+/* Create a "Keeper" Object that keeps our data, must pass connection info */
+$btxKeeper = new src\CRUD\create\BTXKeeper($connection);
+
+$btxFinder = new src\CRUD\read\BTXFinder($connection);
+/* init history list */
+$listOfHistoryObjs = array();
+$historyStmnt = "history_" . date('Y_m_d_H:i:s');
+/* get the current file and strip the extension */
+$currFile = substr(basename(__FILE__), 0, strpos(basename(__FILE__), "."));
+/* Find the history ref value for this file / type */
+$historyRefValue = $btxFinder->GetRefValuesForHistory(
+    $historyStmnt, "", HISTORY_REF_TYPE_CRON_JOB, "", $currFile
+);
 /* encoded values for all market data */
 $encodedJSON = json_decode($result);
 $apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_COIN_HEADER_DIRECTORY;
@@ -50,12 +66,6 @@ if($encodedJSON->success) {
      * "IsSponsored":null,
      * "LogoUrl":"https://bittrexblobstorage.blob.core.windows.net/public/6defbc41-582d-47a6-bb2e-d0fa88663524.png"
      * */
-
-    /* Create connection to PGSQL DB */
-    $connection = new src\connections\PGSQLConnector();
-    /* Create a "Keeper" Object that keeps our data, must pass connection info */
-    $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
-    $btxFinder = new src\CRUD\read\BTXFinder($connection);
     foreach ($encodedJSON->result as $row) {
         /* Convert date format to Epoch */
         $date = date('U');
@@ -78,10 +88,12 @@ if($encodedJSON->success) {
             , $date
             , $row->LogoUrl
         );
+
         $stmntName = $row->MarketCurrency . $row->BaseCurrency . $date;
         $testing = $btxFinder->GetCoinHeader($stmntName, "", $row->MarketCurrency, $row->BaseCurrency);
+        $historyDescription = "";
         if($testing === false) {
-//            echo "Coin does not exist in DB - Insert</br>";
+            $historyDescription = "Coin does not exist in DB - Insert";
             /* store the object in a list */
             $listOfHeaders[] = $btxCoinHeader;
         }
@@ -94,14 +106,22 @@ if($encodedJSON->success) {
                 && $btxCoinHeader->getMinconfirmation()== $coinRow['minconfirmation']
                 && $btxCoinHeader->getIsactive()== $coinRow['isactive']
             ) {
-//                echo "No Update </br>";
+                $historyDescription = "Coin does not need updated";
             }
             else {
-//                echo "Should Update </br>";
-                /* store the object in a list */
                 $listOfHeadersToUpdate[] = $btxCoinHeader;
+                $historyDescription = "Coin needs updated";
             }
         }
+        /* Initialize BTXHistory obj */
+        $historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+            $row->MarketCurrency
+            , $row->BaseCurrency
+            , $historyDescription
+            , $historyRefValue[0]['id']
+            , $date
+        );
+        $listOfHistoryObjs[] = $historyObj;
 
     }
     $numOfInserts = sizeof($listOfHeaders);
@@ -115,14 +135,31 @@ if($encodedJSON->success) {
         /* TODO
             Create an update
          */
-        $retValToEcho = date('Y-m-d H:i:s') . " | Need to update $numOfUpdates row(s)\n";
+        $retValToEcho = date('Y-m-d H:i:s') . " | Need to update $numOfUpdates row(s)";
     } else {
-        $retValToEcho = date('Y-m-d H:i:s') . " | No inserts or updates executed\n";
+        $retValToEcho = date('Y-m-d H:i:s') . " | No inserts or updates executed";
     }
 } else {
     $apiFileDataVerifyName .= "___FAIL";
-    $retValToEcho = date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed\n";
+    $retValToEcho = date('Y-m-d H:i:s') . " | CURL Call to bittrex API: /public/getmarkets failed";
 }
+
+$numOfInserts = sizeof($listOfHistoryObjs);
+$retValToEcho .= " | File Complete - History wrote $numOfInserts to table (excluding this row)";
+
+/* Initialize final BTXHistory obj to capture end of file statement */
+$historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+    "ALL"
+    , "ALL"
+    , $retValToEcho
+    , $historyRefValue[0]['id']
+    , date('U')
+);
+$listOfHistoryObjs[] = $historyObj;
+/* Generate Insert statement - each object will have this method */
+$historyInsertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfHistoryObjs, BTX_TBL_HISTORY);
+//var_dump($historyInsertStmnt);
+$historyRetVal = $btxKeeper->ExecuteInsertStatement($historyInsertStmnt, $numOfInserts, BTX_TBL_HISTORY[0]);
 
 $apiFileDataVerifyName .= ".json";
 $fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing

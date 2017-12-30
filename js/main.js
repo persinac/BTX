@@ -375,14 +375,11 @@ function drawBasic(myData) {
         var data = new google.visualization.DataTable();
         data.addColumn('date', 'X');
         data.addColumn('number', 'SMA');
-        // A column for custom tooltip content
-        //data.addColumn({type: 'string', role: 'tooltip'});
-        // var rows;
         var lowDate = new Date(myData[0][0] * 1000);
         var highDate = new Date(myData[myData.length-1][0] * 1000);
         $(myData).each(function (index) {
-            // console.log("SMA Idx: " + index + " @ idx: " + myData[index] + " Date: " + new Date(myData[index][0]*1000));
-            data.addRows([[new Date(myData[index][0] * 1000), myData[index][1]]])
+            var newDate = new Date(myData[index][0] * 1000);
+            data.addRows([[newDate, myData[index][1]]])
         });
 
         var options = {
@@ -460,10 +457,11 @@ function drawBasicRSI(myData) {
                     count: -1,
                     units: {
                         days: {format: ['MMM dd']},
-                        hours: {format: ['HH:mm', 'ha']},
+                        hours: {format: ['HH:mm', 'ha']}
                     }
                 },
                 minorGridlines: {
+                    count: 1,
                     units: {
                         hours: {format: ['hh:mm:ss a', 'ha']},
                         minutes: {format: ['HH:mm a Z', ':mm']}
@@ -489,9 +487,8 @@ function drawBasicStochastic(myData) {
         data.addColumn('date', 'X');
         data.addColumn('number', 'SlowK');
         data.addColumn('number', 'SlowD');
-        // A column for custom tooltip content
         data.addColumn({type: 'string', role: 'tooltip'});
-        // data.addRows(myData);
+
         var lowDate = new Date(myData[0][0] * 1000);
         var highDate = new Date(myData[myData.length-1][0] * 1000);
         $(myData).each(function(index) {
@@ -510,7 +507,7 @@ function drawBasicStochastic(myData) {
                     count: -1,
                     units: {
                         days: {format: ['MMM dd']},
-                        hours: {format: ['HH:mm', 'ha']},
+                        hours: {format: ['HH:mm', 'ha']}
                     }
                 },
                 minorGridlines: {

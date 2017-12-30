@@ -66,6 +66,22 @@ $numOfInserts = count($encodedJSON->result);
 if($btcUSDTjson->success) {
     $btcUSDValue = $btcUSDTjson->result[0]->Last;
 }
+
+/* Create connection to PGSQL DB */
+$connection = new src\connections\PGSQLConnector();
+/* Create a "Keeper" Object that keeps our data, must pass connection info */
+$btxKeeper = new src\CRUD\create\BTXKeeper($connection);
+$btxFinder = new src\CRUD\read\BTXFinder($connection);
+/* init history list */
+$listOfHistoryObjs = array();
+$historyStmnt = "history_" . date('Y_m_d_H:i:s');
+/* get the current file and strip the extension */
+$currFile = substr(basename(__FILE__), 0, strpos(basename(__FILE__), "."));
+/* Find the history ref value for this file / type */
+$historyRefValue = $btxFinder->GetRefValuesForHistory(
+    $historyStmnt, "", HISTORY_REF_TYPE_CRON_JOB, "", $currFile
+);
+
 $apiFileDataVerifyName = API_DATA_STORAGE_BASE . API_DATA_GET_MARKET_SUMMARIES_DIRECTORY;
 $apiFileDataVerifyName .= date('Y_m_d_H:i:s');
 $retValToEcho = "";
@@ -95,6 +111,7 @@ if($encodedJSON->success) {
             $pos = strpos($row->MarketName, $searchFor);
             if($pos === false) {}
             else {
+                $historyDescription = "";
                 $usdtConversion = 0.00;
                 if($searchFor == "USDT-") {
                     $usdtConversion = $row->Last;
@@ -118,16 +135,23 @@ if($encodedJSON->success) {
                     , number_format($row->Bid, "9", ".", "")
                     , $row->OpenBuyOrders, $row->OpenSellOrders, $convertBTXToEpoch, $date
                 );
+
                 /* store the object in a list */
                 $listOfMarketHistory[] = $btxMarketHistory;
+
+                $historyDescription = "Insert Market Summary";
+                /* Initialize BTXHistory obj */
+                $historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+                    $coin
+                    , $market
+                    , $historyDescription
+                    , $historyRefValue[0]['id']
+                    , $date
+                );
+                $listOfHistoryObjs[] = $historyObj;
             }
         }
     }
-    /* Create connection to PGSQL DB */
-    $connection = new src\connections\PGSQLConnector();
-    /* Create a "Keeper" Object that keeps our data, must pass connection info */
-    $btxKeeper = new src\CRUD\create\BTXKeeper($connection);
-
     /* Generate Insert statement - each object will have this method */
     $insertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfMarketHistory, BTX_TBL_MARKET_HISTORY);
     /* Run the insert statement */
@@ -136,7 +160,34 @@ if($encodedJSON->success) {
 } else {
     $apiFileDataVerifyName .= "___FAIL";
     $retValToEcho = date('Y-m-d H:i:s') . " | CURL Call to bittrex API: public/getmarketsummaries failed\n";
+    /* Initialize BTXHistory obj to capture failed statement */
+    $historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+        "ALL"
+        , "ALL"
+        , $retValToEcho
+        , $historyRefValue[0]['id']
+        , date('U')
+    );
+    $listOfHistoryObjs[] = $historyObj;
 }
+
+$numOfInserts = sizeof($listOfHistoryObjs);
+$retValToEcho .= " | File Complete - History wrote $numOfInserts to table (excluding this row)";
+
+/* Initialize final BTXHistory obj to capture end of file statement */
+$historyObj = src\BTXHistory::CreateNewBTXHistoryForInsert(
+    "ALL"
+    , "ALL"
+    , $retValToEcho
+    , $historyRefValue[0]['id']
+    , date('U')
+);
+$listOfHistoryObjs[] = $historyObj;
+/* Generate Insert statement - each object will have this method */
+$historyInsertStmnt = $btxKeeper->CreateMultiInsertStatement($listOfHistoryObjs, BTX_TBL_HISTORY);
+//var_dump($historyInsertStmnt);
+$historyRetVal = $btxKeeper->ExecuteInsertStatement($historyInsertStmnt, $numOfInserts, BTX_TBL_HISTORY[0]);
+
 $apiFileDataVerifyName .= ".json";
 $fileHandler = fopen($apiFileDataVerifyName, 'w') or die('Cannot open file:  '.$apiFileDataVerifyName); //open file for writing
 $fileData = json_encode($encodedJSON->result) . "\n" . $retValToEcho;

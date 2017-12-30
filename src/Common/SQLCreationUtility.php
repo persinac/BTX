@@ -60,7 +60,7 @@ class SQLCreationUtility
     public static function ConstructOrderByStatement($fields, $orderByAsc = "") {
         $orderBy = "";
 
-        if(sizeof($fields) > 0) {
+        if(sizeof($fields) > 0 && !empty($fields)) {
             $orderBy .= "ORDER BY ";
             $orderBy .= implode(",", $fields);
 

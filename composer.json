@@ -6,6 +6,7 @@
     , "src/CRUD/TableNames.php"
     , "src/Common/Utilities.php"
     , "src/constants.php"
+    , "src/cron/BTXGetMarketSummaryDetails_thread.php"
     ],
     "psr-4": {
       "src\\": "src"
