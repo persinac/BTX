@@ -68,11 +68,10 @@ function GetMarketSummaryDetailsThread($searchFor, $btcUSDValue, $list, $searchN
         }
         curl_close($specMarketch);
         $specMarketjson = json_decode($specMarketResult);
-
+        $coin = substr($market, strlen($searchFor));
+        $market = substr($market, 0,strlen($searchFor)-1);
         if($specMarketjson->success && !empty($specMarketjson->result)) {
             $count = 0;
-            $coin = substr($market, strlen($searchFor));
-            $market = substr($market, 0,strlen($searchFor)-1);
             foreach ($specMarketjson->result as $row) {
                 /*
                 {
@@ -85,10 +84,11 @@ function GetMarketSummaryDetailsThread($searchFor, $btcUSDValue, $list, $searchN
                 "OrderType":"BUY"
                 }
                  */
-                $count += 1;
+
                 $convertDate = DateTime::createFromFormat('Y-m-d\TH:i:s+', $row->TimeStamp);
                 $dateCompare = $convertDate->format('Y-m-d H:i:s');
                 if($dateCompare >= $currDateTimeLow && $dateCompare <= $currDateTimeHigh) {
+                    $count += 1;
                     $usdtConversion = 0.00;
                     if($searchFor == "USDT-") {
                         $usdtConversion = $row->Price;
