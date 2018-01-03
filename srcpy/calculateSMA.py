@@ -29,23 +29,42 @@ try:
         , user=params['pgsql']['user']
         , password=params['pgsql']['password']
     )
+
+    currentTime = datetime.now()
+    currMinuteTime_nonFormat = currentTime
+    currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
+
+    # convert the times to EPOCH
+    epochCurrTime = int(currMinuteTimeReplaceSeconds.timestamp())
+
     test = 123
     currMarket = sys.argv[1]
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
+    tsGreaterThan = (epochCurrTime - (limit * 60)) + 1
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
-    sqlSelect = "SELECT closer, timestampintervalhigh from tkmcandlesticks"
-    sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
-    sqlOrder = "ORDER BY timestampintervallow DESC"
-    sqlLimit = "LIMIT %s" % (limit)
-    sqlStmnt = sqlSelect + " " + sqlWhere + " " + sqlOrder + " " + sqlLimit
+    sqlSelect = "SELECT id, closer, timestampintervalhigh from tkmcandlesticks"
+    sqlWhere = "WHERE market = '%s' AND coin = '%s' AND timestampintervallow > %s" % (
+    currMarket, currCoin, tsGreaterThan)
+    ##
+    # Order BY and limit statements were adversely impacting performance
+    # sqlOrder = "ORDER BY timestampintervallow DESC"
+    # sqlLimit = "LIMIT %s" % (limit)
+    ##
+    # Now we need to use numpy to order the data
+    sqlStmnt = sqlSelect + " " + sqlWhere
     cursor = conn.cursor()
     cursor.execute(sqlStmnt)
     rows = cursor.fetchall()
     if len(rows) > 0:
-        initialData = rows[::-1]
-        intervalCalc = numpy.array([[initialData[j][0], initialData[j][1]] for j in range(len(initialData)) if j % interval == 0])
+        initialData = rows
+        ##
+        # Order the data
+        ##
+        idArrToOrder = [i[0] for i in initialData]
+        indirectSort = numpy.argsort(idArrToOrder)
+        intervalCalc = numpy.array([[initialData[j][1], initialData[j][2]] for j in indirectSort if j % interval == 0])
         listForSMA = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
         output = talib.SMA(listForSMA, timePeriod)
         cleanedList = [

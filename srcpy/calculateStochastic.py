@@ -29,25 +29,40 @@ try:
         , user=params['pgsql']['user']
         , password=params['pgsql']['password']
     )
+
+    currentTime = datetime.now()
+    currMinuteTime_nonFormat = currentTime
+    currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
+
+    # convert the times to EPOCH
+    epochCurrTime = int(currMinuteTimeReplaceSeconds.timestamp())
+
     currMarket = sys.argv[1]
     currCoin = sys.argv[2]
     limit = int(sys.argv[3])
+    tsGreaterThan = (epochCurrTime - (limit * 60)) + 1
     interval = int(sys.argv[4])
     timePeriod = int(sys.argv[5])
     sqlSelect = "SELECT id, high, low, closer, timestampintervalhigh from tkmcandlesticks"
-    sqlWhere = "WHERE market = '%s' AND coin = '%s'" % (currMarket, currCoin)
-    sqlOrder = "ORDER BY timestampintervallow DESC"
-    sqlLimit = "LIMIT %s" % (limit)
-    sqlStmnt = sqlSelect + " " + sqlWhere + " " + sqlOrder + " " + sqlLimit
+    sqlWhere = "WHERE market = '%s' AND coin = '%s' AND timestampintervallow > %s" % (
+        currMarket, currCoin, tsGreaterThan)
+    ##
+    # Order BY and limit statements were adversely impacting performance
+    # sqlOrder = "ORDER BY timestampintervallow DESC"
+    # sqlLimit = "LIMIT %s" % (limit)
+    ##
+    sqlStmnt = sqlSelect + " " + sqlWhere
     cursor = conn.cursor()
     cursor.execute(sqlStmnt)
     rows = cursor.fetchall()
     if len(rows) > 0:
-        initialData = rows[::-1]
-        close = numpy.array([initialData[a][3] for a in range(len(initialData)) if a % interval == 0])
-        high = numpy.array([initialData[b][1] for b in range(len(initialData)) if b % interval == 0])
-        low = numpy.array([initialData[c][2] for c in range(len(initialData)) if c % interval == 0])
-        timestamp = [initialData[d][4] for d in range(len(initialData)) if d % interval == 0]
+        initialData = rows
+        idArrToOrder = [i[0] for i in initialData]
+        indirectSort = numpy.argsort(idArrToOrder)
+        close = numpy.array([initialData[a][3] for a in indirectSort if a % interval == 0])
+        high = numpy.array([initialData[b][1] for b in indirectSort if b % interval == 0])
+        low = numpy.array([initialData[c][2] for c in indirectSort if c % interval == 0])
+        timestamp = [initialData[d][4] for d in indirectSort if d % interval == 0]
         slowk, slowd = talib.STOCH(high, low, close, fastk_period=5, slowk_period=3, slowk_matype=0, slowd_period=3, slowd_matype=0)
         cleanedList = [
             [
