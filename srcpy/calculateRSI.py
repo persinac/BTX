@@ -21,6 +21,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 try:
+    perf_startTime = datetime.now()
     params = config.config()
     # use our connection values to establish a connection
     conn = psycopg2.connect(
@@ -73,5 +74,8 @@ try:
             ] for k in range(len(outputRSI)) if not math.isnan(outputRSI[k])]
         print(cleanedList)
 
+    perf_endTime = datetime.now()
+
+    # print("Start time: %s - End Time: %s "% (perf_startTime, perf_endTime))
 except Exception as e:
     print("Uh oh, you done fucked up: %s" % (e))
