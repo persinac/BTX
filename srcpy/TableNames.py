@@ -30,3 +30,15 @@ BTX_TBL_HISTORY_REF = [
         "(type,subtype,name,isactive)",
         "(id,type,subtype,name,isactive)"
     ]
+
+BTX_TBL_CALENDAR_EVENTS = [
+        'calevents',
+        "(idfromsource,source,coin,eventaddedon,eventdate,title,description,validity,typeofevent,byoron,proofofsource)",
+        "(id,idfromsource,source,coin,eventaddedon,eventdate,title,description,validity,typeofevent,byoron,proofofsource)"
+    ]
+
+BTX_TBL_CALENDAR_EVENT_TYPES = [
+        'caleventtypes',
+        "(label,weight,isactive)",
+        "(id,label,weight,isactive)"
+    ]

@@ -249,8 +249,8 @@ if getMarketSummaries['success'] == True:
                                                                             TableNames.BTX_TBL_HISTORY[1],
                                                                             TableNames.BTX_TBL_HISTORY[0])
         ## Clean up empty double commas - should never happen with history
-        marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,")
-        historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,")
+        marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,", ",")
+        historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,", ",")
 
         print(marketInsertStmnt[-1:] == ",")
         while marketInsertStmnt[-1:] == ",":
@@ -292,8 +292,8 @@ if getMarketSummaries['success'] == True:
                                                                             TableNames.BTX_TBL_HISTORY[1],
                                                                             TableNames.BTX_TBL_HISTORY[0])
         ## Clean up empty double commas - should never happen with history
-        marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,")
-        historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,")
+        marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,", ",")
+        historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,", ",")
         while marketInsertStmnt[-1:] == ",":
             marketInsertStmnt = marketInsertStmnt[:-1]
         try:

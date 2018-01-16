@@ -111,7 +111,7 @@ historyObj = History.History(
     , timegm(datetime.utcnow().utctimetuple())
 )
 historyTuple.append(historyObj)
-insertStmtn = BTXCreator.BTXCreator.buildinsertstatement(historyTuple, TableNames.BTX_TBL_HISTORY_TBL[1], TableNames.BTX_TBL_HISTORY_TBL[0])
+insertStmtn = BTXCreator.BTXCreator.buildinsertstatement(historyTuple, TableNames.BTX_TBL_HISTORY[1], TableNames.BTX_TBL_HISTORY[0])
 pgconn.insert(insertStmtn)
 print(retValToEcho)
 apiFileDataVerifyName += ".json"
