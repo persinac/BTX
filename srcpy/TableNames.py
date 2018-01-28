@@ -42,3 +42,15 @@ BTX_TBL_CALENDAR_EVENT_TYPES = [
         "(label,weight,isactive)",
         "(id,label,weight,isactive)"
     ]
+
+BTX_TBL_IND_REFERENCE = [
+        'indreference',
+        "(code,...,...)",
+        "(id,code,...,...)"
+    ]
+
+BTX_TBL_IND_MEASUREMENT_COMBINATIONS = [
+        'indmeasurementcombinations',
+        "(code,...,...)",
+        "(id,code,...,...)"
+    ]

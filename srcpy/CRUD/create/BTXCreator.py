@@ -36,3 +36,14 @@ class BTXCreator:
 
         retVal = "INSERT INTO %s %s VALUES %s" % (tableName, valueList, cleanUp)
         return retVal
+
+    ## ListOfArgs = listof tuples
+    ## Tuple -> [i][0] = field for where clause
+    ## Tuple -> [i][1] = operator
+    ## Tuple -> [i][2] = value
+    @staticmethod
+    def buildwhereclause(listofargs):
+        retval = ""
+        for arg in listofargs:
+            if arg[1] == "in":
+                ""
