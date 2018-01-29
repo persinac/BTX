@@ -2,7 +2,7 @@
 
 import sys
 import logging
-sys.path.append('/var/www/html/python_bittrex_master/bittrex')
+sys.path.append('/var/www/html/srcpy/bittrex')
 
 logging.basicConfig(filename='/var/www/html/example.log',level=logging.DEBUG)
 logger = logging.getLogger()
@@ -52,6 +52,13 @@ try:
     #get balance - just to test integration
     actual = bittrex.get_balance('BTC')
 
+    currentTime = datetime.now()
+    previousMinuteTime_nonFormat = currentTime - timedelta(minutes=1)
+    previousMinuteReplaceSeconds = previousMinuteTime_nonFormat.replace(second=0, microsecond=0)
+
+    currMinuteTime_nonFormat = currentTime
+    currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
+
     dataTuple = []
     for value in coinsToWatch:
         ## get various market summaries
@@ -59,13 +66,6 @@ try:
         # print(str(marketSummary['result']))
         if specificMarketHistory['success'] == True:
             for valuetwo in specificMarketHistory['result']:
-                currentTime = datetime.now()
-                previousMinuteTime_nonFormat = currentTime - timedelta(minutes=1)
-                previousMinuteReplaceSeconds = previousMinuteTime_nonFormat.replace(second=0, microsecond=0)
-
-                currMinuteTime_nonFormat = currentTime
-                currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
-
                 strippedMSIdx = str(valuetwo['TimeStamp']).find(".")
                 parsedTime = ""
                 if strippedMSIdx > 0:
@@ -82,8 +82,8 @@ try:
                 # to query the DB for all btxids and only insert
                 # the values that don't already exist in our DB
                 # for now this should be fine...check for duplicates later
-                if compareLow == True:
-                    if compareHigh == True:
+                if compareLow:
+                    if compareHigh:
                         ###
                         # btxid, coin, market,
                         # quantity, value, total,

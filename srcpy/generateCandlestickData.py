@@ -37,10 +37,10 @@ try:
 
     # Actually going to calculate 1 minute behind - to allow the
     # other batch jobs to complete / insert data
-    previousMinuteTime_nonFormat = currentTime - timedelta(minutes=3)
+    previousMinuteTime_nonFormat = currentTime - timedelta(minutes=2)
     previousMinuteReplaceSeconds = previousMinuteTime_nonFormat.replace(second=0, microsecond=0)
 
-    currMinuteTime_nonFormat = currentTime - timedelta(minutes=2)
+    currMinuteTime_nonFormat = currentTime - timedelta(minutes=1)
     currMinuteTimeReplaceSeconds = currMinuteTime_nonFormat.replace(second=0, microsecond=0)
 
     # convert the times to EPOCH

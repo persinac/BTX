@@ -65,6 +65,8 @@ try:
         idArrToOrder = [i[0] for i in initialData]
         indirectSort = numpy.argsort(idArrToOrder)
         intervalCalc = numpy.array([[initialData[j][1], initialData[j][2]] for j in indirectSort if j % interval == 0])
+        ## Below is to calculate the minimum values in the given interval range
+        # intervalCalc = Utilities.Utilities.calculatemingivenarange(initialData, indirectSort, interval)
         listForSMA = numpy.array([intervalCalc[k][0] for k in range(len(intervalCalc))])
         output = talib.SMA(listForSMA, timePeriod)
         cleanedList = [
