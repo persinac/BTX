@@ -45,12 +45,24 @@ BTX_TBL_CALENDAR_EVENT_TYPES = [
 
 BTX_TBL_IND_REFERENCE = [
         'indreference',
-        "(code,...,...)",
-        "(id,code,...,...)"
+        "(code,longname,timeperiodvalue,bullish,bearish,isactive,addedon)",
+        "(id,code,longname,timeperiodvalue,bullish,bearish,isactive,addedon)"
     ]
 
 BTX_TBL_IND_MEASUREMENT_COMBINATIONS = [
         'indmeasurementcombinations',
-        "(code,...,...)",
-        "(id,code,...,...)"
+        "(indicatorid,comparisonoperator,comparisonvalue,compareagainstotheroperator,otherindicatorid,buy,sell,createdon,createdby)",
+        "(id,indicatorid,comparisonoperator,comparisonvalue,compareagainstotheroperator,otherindicatorid,buy,sell,createdon,createdby)"
+    ]
+
+BTX_TBL_IND_COMBINATION_MAPPING = [
+        'indcombinationmapping',
+        "(combinationid,indrefid,buystrat,sellstrat,createdon)",
+        "(id,combinationid,indrefid,buystrat,sellstrat,createdon)"
+    ]
+
+BTX_TBL_IND_STRATEGY_RESULTS = [
+        'indstrategyresults',
+        "(buycomboid,sellcomboid,ticketvalue,strategyfile,configfile,twohrprofit,fourhrprofit,eighthrprofit,totalprofit,totalprofitperc,startedon,endedon)",
+        "(id,buycomboid,sellcomboid,ticketvalue,strategyfile,configfile,twohrprofit,fourhrprofit,eighthrprofit,totalprofit,totalprofitperc,startedon,endedon)"
     ]
