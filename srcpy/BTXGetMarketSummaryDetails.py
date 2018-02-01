@@ -244,10 +244,12 @@ if getMarketSummaries['success'] == True:
             vanillaDataForFileOuput.append(decipherMe[i]['vanillaData'])
         marketInsertStmnt = BTXCreator.BTXCreator.buildmaininsertstatement(marketInsertValues,
                                                                             TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[1],
-                                                                            TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0])
+                                                                            TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0],
+                                                                           1)
         historyInsertStmnt = BTXCreator.BTXCreator.buildmaininsertstatement(historyInsertValues,
                                                                             TableNames.BTX_TBL_HISTORY[1],
-                                                                            TableNames.BTX_TBL_HISTORY[0])
+                                                                            TableNames.BTX_TBL_HISTORY[0],
+                                                                            1)
         ## Clean up empty double commas - should never happen with history
         marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,", ",")
         historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,", ",")
@@ -284,13 +286,13 @@ if getMarketSummaries['success'] == True:
             vanillaDataForFileOuput.append(decipherMe[i]['vanillaData'])
 
         marketInsertStmnt = BTXCreator.BTXCreator.buildmaininsertstatement(marketInsertValues,
-                                                                           TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[
-                                                                               1],
-                                                                           TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[
-                                                                               0])
+                                                                           TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[1],
+                                                                           TableNames.BTX_TBL_COIN_MARKET_HISTORY_DETAILS[0],
+                                                                           1)
         historyInsertStmnt = BTXCreator.BTXCreator.buildmaininsertstatement(historyInsertValues,
                                                                             TableNames.BTX_TBL_HISTORY[1],
-                                                                            TableNames.BTX_TBL_HISTORY[0])
+                                                                            TableNames.BTX_TBL_HISTORY[0],
+                                                                            1)
         ## Clean up empty double commas - should never happen with history
         marketInsertStmnt = Utilities.Utilities.removestringoccurences(marketInsertStmnt, ",,", ",")
         historyInsertStmnt = Utilities.Utilities.removestringoccurences(historyInsertStmnt, ",,", ",")

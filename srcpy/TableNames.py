@@ -63,6 +63,6 @@ BTX_TBL_IND_COMBINATION_MAPPING = [
 
 BTX_TBL_IND_STRATEGY_RESULTS = [
         'indstrategyresults',
-        "(buycomboid,sellcomboid,ticketvalue,strategyfile,configfile,twohrprofit,fourhrprofit,eighthrprofit,totalprofit,totalprofitperc,startedon,endedon)",
-        "(id,buycomboid,sellcomboid,ticketvalue,strategyfile,configfile,twohrprofit,fourhrprofit,eighthrprofit,totalprofit,totalprofitperc,startedon,endedon)"
+        "(buycomboid, sellcomboid, tickervalue, strategyfile, configfile, twohrprofit, twohrprofitperc, fourhrprofit, fourhrprofitperc, eighthrprofit, eighthrprofitperc, totalprofit, totalprofitperc, startedon, endedon)",
+        "(id, buycomboid, sellcomboid, tickervalue, strategyfile, configfile, twohrprofit, twohrprofitperc, fourhrprofit, fourhrprofitperc, eighthrprofit, eighthrprofitperc, totalprofit, totalprofitperc, startedon, endedon)"
     ]

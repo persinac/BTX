@@ -126,6 +126,11 @@ $marketDropdown .= "</select>";
                 </div>
 
             </div>
+            <div class="row">
+                <div class="col-lg-12" id="coin_events">
+
+                </div>
+            </div>
         <div class="row">
             <div class="col-lg-6" id="value">
 
@@ -159,9 +164,7 @@ $marketDropdown .= "</select>";
 <script src="/js/btx_main.js"></script>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script>
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(drawBasic);
-    google.charts.setOnLoadCallback(drawBasicRSI);
+
     // Wait for the page to load first
 //    window.onload = function() {
 //
@@ -183,6 +186,11 @@ $marketDropdown .= "</select>";
 //        }
 //    }
     $(document).ready(function() {
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(drawBasic);
+    google.charts.setOnLoadCallback(drawBasicRSI);
+    google.charts.setOnLoadCallback(drawBasicStochastic);
+    google.charts.setOnLoadCallback(drawBasicMACD);
         $("#dyn_content_sma").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
         $("#dyn_content_rsi").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
         $("#dyn_content_stoch").html('<img id="sma_loading" src="https://loading.io/spinners/recycle/lg.recycle-spinner.gif" />');
@@ -195,6 +203,7 @@ $marketDropdown .= "</select>";
         BuildFilters(params);
         BuildHomePage(params);
         GetCoinData(params);
+        GetCoinCalendarEvents(params);
         $("#home a").click(function() {
             // BuildHomePage();
             $("#employeeList").removeClass("active");
@@ -239,7 +248,9 @@ $marketDropdown .= "</select>";
             };
             BuildHomePage(params);
             GetCoinData(params);
+            GetCoinCalendarEvents(params);
         });
+
 
         $('#dyn_content').delegate('table#employee tr td a.details', 'click', function() {
             LoadEmployeeDetails()
@@ -276,6 +287,7 @@ $marketDropdown .= "</select>";
             console.log(params);
             BuildFilters(params);
             GetCoinData(params);
+            GetCoinCalendarEvents(params);
             // BuildHomePage(params);
         });
 
@@ -291,6 +303,7 @@ $marketDropdown .= "</select>";
             };
             BuildHomePage(params);
             GetCoinData(params);
+            GetCoinCalendarEvents(params);
         });
 
         $('#dyn_content').on('change', '#filters_intervals', function(){
@@ -305,6 +318,7 @@ $marketDropdown .= "</select>";
             };
             BuildHomePage(params);
             GetCoinData(params);
+            GetCoinCalendarEvents(params);
         });
 
         $('#dyn_content').delegate('ul li a', 'click', function() {

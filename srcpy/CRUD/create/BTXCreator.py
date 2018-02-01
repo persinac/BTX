@@ -3,6 +3,18 @@ import logging
 
 class BTXCreator:
 
+    ###
+    # Want to call this within this class,
+    # But having difficulty with calling within static method
+    ###
+    def removecommasfromend(self, insertstmnt):
+        cleanUp = str(insertstmnt).strip()[:4]
+        if cleanUp.count(",") > 0:
+            cleanUp = insertstmnt[1:]
+        else:
+            cleanUp = str(insertstmnt).strip()
+        return cleanUp
+
     @staticmethod
     def buildinsertstatement(listofinsert, valueList, tableName):
         retVal = "INSERT INTO %s %s VALUES " % (tableName, valueList)
@@ -27,20 +39,25 @@ class BTXCreator:
         return retVal
 
     @staticmethod
-    def buildmaininsertstatement(insertstmnt, valueList, tableName):
-        cleanUp = str(insertstmnt).strip()[:4]
-        if cleanUp.count(",") > 0:
-            cleanUp = insertstmnt[1:]
-        else:
-            cleanUp = str(insertstmnt).strip()
+    def buildmaininsertstatement(insertstmnt, valueList, tableName, cleanup=0):
+        cleanStmnt = insertstmnt
+        if cleanup == 1:
+            cleanStmntCommaCount = str(insertstmnt).strip()[:4]
+            if cleanStmntCommaCount.count(",") > 0:
+                cleanStmnt = insertstmnt[1:]
+            else:
+                cleanStmnt = str(insertstmnt).strip()
 
-        retVal = "INSERT INTO %s %s VALUES %s" % (tableName, valueList, cleanUp)
+        retVal = "INSERT INTO %s %s VALUES %s" % (tableName, valueList, cleanStmnt)
         return retVal
 
-    ## ListOfArgs = listof tuples
-    ## Tuple -> [i][0] = field for where clause
-    ## Tuple -> [i][1] = operator
-    ## Tuple -> [i][2] = value
+    '''
+    TBD
+    ListOfArgs = listof tuples
+        Tuple -> [i][0] = field for where clause
+        Tuple -> [i][1] = operator
+        Tuple -> [i][2] = value
+    '''
     @staticmethod
     def buildwhereclause(listofargs):
         retval = ""
