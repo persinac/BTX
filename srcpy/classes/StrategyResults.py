@@ -24,8 +24,8 @@ class StrategyResults:
         return self
 
     def createcommadelimitedvalueforinsert(self):
-        retVal = "%s,%s,%s,%s," \
-                 "%s,%s,%s,%s," \
+        retVal = "%s,%s,%s,'%s'," \
+                 "'%s',%s,%s,%s," \
                  "%s,%s,%s,%s," \
                  "%s,'%s','%s'"%(
             self.buycomboid, self.sellcomboid, self.tickervalue, self.strategyfile,

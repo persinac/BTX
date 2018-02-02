@@ -1,7 +1,6 @@
 import time
 import numpy
 import talib
-import psycopg2
 import sys
 import logging
 import math
@@ -15,7 +14,13 @@ from datetime import timedelta
 
 import TableNames
 from classes import CombinationMapping
+from classes import StrategyResults
 from config import config
+from connection import PGConnect
+from calendar import timegm
+from datetime import datetime
+from classes import History
+from CRUD.create import BTXCreator
 
 logging.basicConfig(filename='/var/www/html/example.log',level=logging.DEBUG)
 logger = logging.getLogger()
@@ -27,25 +32,19 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 try:
-    params = config.config()
-    # use our connection values to establish a connection
-    conn = psycopg2.connect(
-        host=params['pgsql']['host']
-        , database=params['pgsql']['database']
-        , user=params['pgsql']['user']
-        , password=params['pgsql']['password']
-    )
+    pgconn = PGConnect.DBase()
     permutationSize = int(sys.argv[1])
     sqlSelect = "SELECT max(combinationid) from %s "%(TableNames.BTX_TBL_IND_COMBINATION_MAPPING[0])
     sqlStmnt = ("%s") % (sqlSelect)
-    cursor = conn.cursor()
-    cursor.execute(sqlStmnt)
-    maxId = cursor.fetchall()
+    maxId = pgconn.query(sqlStmnt)
     if len(maxId) > 0:
-        maxId = [a[0] for a in maxId][0]+1
+        maxId = [a[0] for a in maxId][0]
+        if maxId == None:
+            maxId = 1
+        else:
+            maxId += 1
     else:
         maxId = 1
-    print(maxId)
     '''
     This is the function definition:
     
@@ -67,9 +66,7 @@ try:
     '''
     sqlSelect = "SELECT test(%s)"%(permutationSize)
     sqlStmnt = ("%s")%(sqlSelect)
-    cursor = conn.cursor()
-    cursor.execute(sqlStmnt)
-    rows = cursor.fetchall()
+    rows = pgconn.query(sqlStmnt)
     listOfCombos = []
     if len(rows) > 0:
         x = [row[0] for row in rows]
@@ -78,39 +75,74 @@ try:
         lengthOfCombo = len(buyCombos)
         ## First - generate list of BUY strat combo strategy objects
         for i in range(lengthOfCombo):
-            comboId = i
+            comboId = i + maxId
             for k in buyCombos[i]:
                 combo = CombinationMapping.CombinationMapping(
                     -1, comboId, k, 1, 0, datetime.now()
                 )
                 listOfCombos.append(combo)
 
+        ## increment maxId
+        maxId += len(buyCombos)
+        # print("mid maxid: %s" % (maxId))
         ## Second - generate list of SELL strat combo strategy objects
         for i in range(lengthOfCombo):
-            # add to current length so that the combo id continues
-            comboId = i + lengthOfCombo
+            # add to maxid so that the id continues
+            comboId = i + maxId
             for k in sellCombos[i]:
                 combo = CombinationMapping.CombinationMapping(
                     -1, comboId, k, 0, 1, datetime.now()
                 )
                 listOfCombos.append(combo)
 
-        print(len(listOfCombos))
+        insertStmtn = BTXCreator.BTXCreator.buildinsertstatement(listOfCombos,
+                                                                 TableNames.BTX_TBL_IND_COMBINATION_MAPPING[1],
+                                                                 TableNames.BTX_TBL_IND_COMBINATION_MAPPING[0])
+        numOfInserts = len(listOfCombos)
+        if numOfInserts > 0:
+            # Insert listOfCombos into indcombinationmapping
+            pgconn.insert(insertStmtn)
         '''
-        Insert listOfCombos into indcombinationmapping
         Below we are extracting the unique combo id to be represented in the strategy results tbl 
         '''
         buycomboids = list(sorted(set([i.combinationid for i in listOfCombos if i.buystrat == 1])))
         sellcomboids = list(sorted(set([i.combinationid for i in listOfCombos if i.sellstrat == 1])))
-        print(len(buycomboids))
-        print(len(list(sorted(set(buycomboids)))))
         '''
-        Build cartesian product of buy and sell comboids
+        Build cartesian product of buy and sell comboids for each ticker value
         These products are going to be inserted preemptively into indstrategyresults
         '''
-        # for r in product(buycomboids, sellcomboids): print("%s | %s"%(r[0], r[1]))
-        # for item in buycomboids:
-        #     print(buycomboids)
+        tickerVals = [5, 30]
+        cartProduct = product(buycomboids, sellcomboids)
+        listOfResultsToInsert = []
+        for r in cartProduct:
+            for ticker in tickerVals:
+                '''
+                r[0] = buy strat
+                r[1] = sell strat
+                '''
+                newResult = StrategyResults.StrategyResults(
+                    -1, r[0], r[1], ticker, "None","None",0,0,0,0,0,0,0,0,datetime.now(),datetime.now()
+                )
+                listOfResultsToInsert.append(newResult)
+
+        '''
+        If the insert list contains > 1500 items - break it down
+        '''
+        while len(listOfResultsToInsert) > 1500:
+            itemsToInsert = listOfResultsToInsert[:1500]
+            listOfResultsToInsert = listOfResultsToInsert[1500:]
+            print("Perform insert...")
+            print(len(listOfResultsToInsert))
+        '''
+        insertStmtn = BTXCreator.BTXCreator.buildinsertstatement(listOfResultsToInsert,
+                                                                 TableNames.BTX_TBL_IND_STRATEGY_RESULTS[1],
+                                                                 TableNames.BTX_TBL_IND_STRATEGY_RESULTS[0])
+        numOfInserts = len(listOfResultsToInsert)
+        # print(insertStmtn)
+        if numOfInserts > 0:
+            # Insert listOfCombos into indcombinationmapping
+            pgconn.insert(insertStmtn)
+        '''
 
 except Exception as e:
     print("Uh oh, you done fucked up: %s" % (e))
